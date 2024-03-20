@@ -300,8 +300,8 @@ public:
     Level(){
         Platform platform1{{100,400},{200,50},100};
         Platform platform2{{300,400},{200,50},100};
-        Platform platform3{{500,100},{200,50},100};
-        Platform platform4{{100,100},{200,50},100};
+        Platform platform3{{500,120},{200,50},100};
+        Platform platform4{{100,150},{200,50},100};
         Platform platform5{{200,600},{200,50},100};
         platforms.push_back(platform1);
         platforms.push_back(platform2);
@@ -309,37 +309,45 @@ public:
         platforms.push_back(platform4);
         platforms.push_back(platform5);
         Weapon none {};
-        DynamicObject obj1{{500,500},{100,100},100,5,none};
+        DynamicObject obj1{{100,300},{100,100},100,5,none};
         DynamicObject obj2{{100,500},{100,100},100,5,none};
         objects.push_back(obj1);
         objects.push_back(obj2);
     }
 
-    void checkCollisionsPlayerPlatforms(DynamicObject& obj) {
+    bool checkCollisionsPlayerPlatforms(DynamicObject& obj) {
+        bool collide = false;
         for (auto &platform: platforms) {
-            if (platform.getCollisionBox().checkCollision(obj.getCollisionBox(), 1.0)) {}
+            if (platform.getCollisionBox().checkCollision(obj.getCollisionBox(), 1.0)) {collide = true;}
         }
+        return collide;
     }
 
-    void checkCollisionsPlayerObjects(DynamicObject& obj) {
+    bool checkCollisionsPlayerObjects(DynamicObject& obj) {
+        bool collide = false;
         for (auto &object: objects) {
-            if (object.getCollisionBox().checkCollision(obj.getCollisionBox(), 0.5)) {}
+            if (object.getCollisionBox().checkCollision(obj.getCollisionBox(), 0.5)) {collide = true;}
         }
+        return collide;
     }
-    void checkCollisionsObjectsObjects() {
+    bool checkCollisionsObjectsObjects() {
+        bool collide = false;
         for (unsigned long long i=0;i<objects.size();i++) {
             for(unsigned long long j=i+1;j<objects.size();j++){
-                if (objects[i].getCollisionBox().checkCollision(objects[j].getCollisionBox(), 0.5)) {}
+                if (objects[i].getCollisionBox().checkCollision(objects[j].getCollisionBox(), 0.5)) {collide = true;}
             }
         }
+        return collide;
     }
 
-    void checkCollisionsPlatformsObjects() {
+    bool checkCollisionsPlatformsObjects() {
+        bool collide = false;
         for (auto & platform : platforms) {
             for(auto & object : objects){
-                if (platform.getCollisionBox().checkCollision(object.getCollisionBox(), 1.0)) {}
+                if (platform.getCollisionBox().checkCollision(object.getCollisionBox(), 1.0)) {collide = true;}
             }
         }
+        return collide;
     }
 
     void checkAllCollisions(DynamicObject& obj){
@@ -360,6 +368,29 @@ public:
 
 };
 
+class Text{
+private:
+    sf::Font font;
+    sf::Text text;
+public:
+    Text(const std::string& str, const sf::Vector2f position){
+        font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
+        text.setFont(font);
+        text.setString(str);
+        text.setCharacterSize(22);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(position);
+    }
+
+    void setSize(unsigned int size){
+        text.setCharacterSize(size);
+    }
+
+    void draw(sf::RenderWindow& window){
+        window.draw(text);
+    }
+
+};
 
 
 void testPlatform() {
@@ -426,17 +457,34 @@ int main() {
     window.setVerticalSyncEnabled(true);                            ///
     /// window.setFramerateLimit(60);                                       ///
     ///////////////////////////////////////////////////////////////////////////
+/*
+    sf::Font font;
+    font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
+
+    sf::Text text_instruction;
+    text_instruction.setFont(font);
+    text_instruction.setString("Make the purple boxes collide");
+    text_instruction.setCharacterSize(22);
+    text_instruction.setFillColor(sf::Color::White);
+    text_instruction.setPosition(400,250);
+*/
+
+    Text text_instruction{"Make the purple boxes collide",{350,200}};
+    Text text_movement{"Move with WASD", {400,50}};
+    Text text_you_won{"You won !",{300,300}};
+    text_you_won.setSize(50);
 
     Weapon wpn {25,100};
     DynamicObject obj{{100,100},{100,100},100,5,wpn};
     obj.getShape().setFillColor(sf::Color::Green);
     Level level{};
 
+    bool playing = true;
     while(window.isOpen()) {
         bool shouldExit = false;
         sf::Event e{};
-        while(window.pollEvent(e)) {
-            switch(e.type) {
+        while (window.pollEvent(e)) {
+            switch (e.type) {
                 case sf::Event::Closed:
                     window.close();
                     break;
@@ -445,31 +493,41 @@ int main() {
                               << "New height: " << window.getSize().y << '\n';
                     break;
                 case sf::Event::TextEntered:
-                    std::cout << char(e.text.unicode) ;
-                    if(e.key.code == sf::Keyboard::Escape)
+                    std::cout << char(e.text.unicode);
+                    if (e.key.code == sf::Keyboard::Escape)
                         shouldExit = true;
                     break;
                 default:
                     break;
             }
         }
-        if(shouldExit) {
+        if (shouldExit) {
             window.close();
             break;
         }
 
-        obj.move();
-        obj.drag(window);
+        if (playing) {
+            obj.move();
+            obj.drag(window);
 
-        level.checkAllCollisions(obj);
+            level.checkAllCollisions(obj);
+            if (level.checkCollisionsObjectsObjects()) { playing = false; }
 
-//        using namespace std::chrono_literals;
-//        std::this_thread::sleep_for(300ms);
+            // using namespace std::chrono_literals;
+            // std::this_thread::sleep_for(300ms);
 
-        window.clear();
-        obj.draw(window);
-        level.draw(window);
-        window.display();
+            window.clear();
+            obj.draw(window);
+            level.draw(window);
+            text_instruction.draw(window);
+            text_movement.draw(window);
+            window.display();
+        }
+        else {
+            window.clear();
+            text_you_won.draw(window);
+            window.display();
+        }
     }
 
     return 0;
