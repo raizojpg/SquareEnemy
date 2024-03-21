@@ -457,17 +457,6 @@ int main() {
     window.setVerticalSyncEnabled(true);                            ///
     /// window.setFramerateLimit(60);                                       ///
     ///////////////////////////////////////////////////////////////////////////
-/*
-    sf::Font font;
-    font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
-
-    sf::Text text_instruction;
-    text_instruction.setFont(font);
-    text_instruction.setString("Make the purple boxes collide");
-    text_instruction.setCharacterSize(22);
-    text_instruction.setFillColor(sf::Color::White);
-    text_instruction.setPosition(400,250);
-*/
 
     Text text_instruction{"Make the purple boxes collide",{350,200}};
     Text text_movement{"Move with WASD", {400,50}};
