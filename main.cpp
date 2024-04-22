@@ -2,6 +2,7 @@
 #include <vector>
 #include <chrono>
 #include <thread>
+#include <memory>
 #include <SFML/Graphics.hpp>
 //#include <Helper.h>
 //////////////////////////////////////////////////////////////////////
@@ -291,9 +292,7 @@ protected:
 public:
     Controllable(): wpn{} {}
     explicit Controllable(Weapon& wpn_) : wpn{wpn_}{}
-    Controllable(const Controllable& other){
-        wpn = other.wpn;
-    }
+    Controllable(const Controllable& other): wpn{other.wpn}{std::cout<<"wpn copied\n";}
 
     virtual void canAttack(std::shared_ptr<DynamicObject> obj) = 0;
 
