@@ -30,13 +30,6 @@ std::ostream& operator<< (std::ostream& os, const sf::Vector2f& vec2f){
 
 enum PlayStates {playing,lost,won};
 
-class Collision;
-class Platform;
-class Weapon;
-class Object;
-class DynamicObject;
-class Level;
-
 class Text{
 private:
     sf::Font font;
@@ -489,7 +482,6 @@ public:
 
 };
 
-
 class Player : public DynamicObject, public Controllable{
 public:
     Player(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_) :
@@ -821,7 +813,6 @@ public:
 
 };
 
-
 void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, std::shared_ptr<Level>& level, PlayStates& play_state){
     level->renderEnemies(play_state);
     player.move();
@@ -931,6 +922,5 @@ int main() {
             window.display();
         }
     }
-
     return 0;
 }
