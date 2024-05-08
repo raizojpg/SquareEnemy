@@ -382,6 +382,7 @@ public:
     Controllable& operator= (Controllable* other){
         std::cout<<"Controllable operator=\n";
         swap(*this,*other);
+        delete other->getWeapon();
         return *this;
     }
 
