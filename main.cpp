@@ -3,6 +3,7 @@
 #include <chrono>
 #include <thread>
 #include <memory>
+#include <string>
 #include <SFML/Graphics.hpp>
 //#include <Helper.h>
 //////////////////////////////////////////////////////////////////////
@@ -27,12 +28,69 @@ std::ostream& operator<< (std::ostream& os, const sf::Vector2f& vec2f){
     return os;
 }
 
+enum PlayStates {playing,lost,won};
+
 class Collision;
 class Platform;
 class Weapon;
 class Object;
 class DynamicObject;
 class Level;
+
+class Text{
+private:
+    sf::Font font;
+    sf::Text text;
+public:
+    Text(){
+        font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
+        text.setFont(font);
+        text.setString("");
+        text.setCharacterSize(22);
+        text.setFillColor(sf::Color::White);
+        text.setPosition({0,0});
+    }
+
+    Text(const std::string& str, const sf::Vector2f position) {
+        font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
+        text.setFont(font);
+        text.setString(str);
+        text.setCharacterSize(22);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(position);
+    }
+
+    Text(const Text& other){
+        font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
+        text.setFont(font);
+        text.setString(other.text.getString());
+        text.setCharacterSize(22);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(other.text.getPosition());
+    }
+
+    Text& operator= (const Text& other){
+        font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
+        text.setFont(font);
+        text.setString(other.text.getString());
+        text.setCharacterSize(22);
+        text.setFillColor(sf::Color::White);
+        text.setPosition(other.text.getPosition());
+        return *this;
+    }
+
+    sf::Vector2f getPosition() const {return text.getPosition();}
+    sf::Text& getText() { return text;}
+
+    void setSize(unsigned int size){
+        text.setCharacterSize(size);
+    }
+
+    void draw(sf::RenderWindow& window){
+        window.draw(text);
+    }
+
+};
 
 class Collision{
 private:
@@ -102,7 +160,7 @@ public:
     Object(sf::Vector2f position_, sf::Vector2f size_) : position{ position_ }, size{ size_ }{
         std::cout << "Object created " << *this;
         shape = sf::RectangleShape{size};
-        shape.setFillColor(sf::Color::Cyan);
+        shape.setFillColor(sf::Color::Magenta);
         shape.setOrigin(size.x/2,size.y/2);
         shape.setPosition(position);
         collisionBox = Collision{shape};
@@ -124,14 +182,11 @@ public:
 
     void setPosition(const sf::Vector2f position_) { position = position_; shape.setPosition(position); }
     sf::Vector2f getPosition() const { return position; }
-    void setSize(const sf::Vector2f size_) { size = size_; }
     sf::Vector2f getSize() const { return size; }
-    //void setShape(const sf::RectangleShape& shape_) {shape = shape_;}
-    sf::RectangleShape &getShape() {return shape;}
-
+    sf::RectangleShape& getShape() {return shape;}
     Collision& getCollisionBox(){return collisionBox;}
 
-    void draw(sf::RenderWindow& window){ window.draw(shape);}
+    virtual void draw(sf::RenderWindow& window){ window.draw(shape);}
 
     friend std::ostream& operator<< (std::ostream& os, const Object& obj) {
         obj.print(os);
@@ -172,7 +227,7 @@ public:
         return *this;
     }
 
-    void setDurability(unsigned int durability_) { durability = durability_; }
+    //void setDurability(unsigned int durability_) { durability = durability_; }
     //unsigned int getDurability() const { return durability; }
 
     ~Platform() override{
@@ -182,6 +237,7 @@ public:
 
 class DynamicObject : public Object {
 protected:
+    Text hp_text;
     unsigned int hp;
     float speed;
 
@@ -195,9 +251,9 @@ public:
         std::cout << "DynamicObject created NULL " << std::endl;
     }
     DynamicObject(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_) :
-        Object{position_, size_}, hp{hp_}, speed{speed_} {
+            Object{position_, size_}, hp{hp_}, speed{speed_} {
         std::cout << "DynamicObject created " << std::endl;
-        shape.setFillColor(sf::Color::Magenta);
+        shape.setFillColor(sf::Color::Cyan);
     }
     DynamicObject(const DynamicObject& other) : Object{other}, hp{other.hp}, speed{other.speed} {
         std::cout << "DynamicObject copied " << std::endl;
@@ -211,10 +267,17 @@ public:
         return *this;
     }
 
+    void showHP(sf::RenderWindow& window) {
+        hp_text.getText().setString(std::to_string(hp));
+        hp_text.getText().setOrigin(this->getShape().getOrigin());
+        hp_text.getText().setPosition(this->position);
+        hp_text.draw(window);
+    }
+
     unsigned int getHp() const {return hp;}
     void setHp(unsigned int hp_) {hp = hp_;}
     //float getSpeed() const {return speed;}
-    void setSpeed(float speed_) {speed = speed_;}
+    //void setSpeed(float speed_) {speed = speed_;}
 
     bool checkHP() const{
         return hp==0;
@@ -226,53 +289,57 @@ public:
 };
 
 class Weapon {
-private:
+protected:
     int attackDamage;
     unsigned int durability;
     bool canAttack;
     std::chrono::steady_clock::time_point lastAttackTime;
     const std::chrono::steady_clock::duration attackCooldown;
+
+    virtual void print(std::ostream& os) const {
+        os << "Weapon : attackDamage = " << attackDamage << " and durability = " << durability;
+    }
+
 public:
-    Weapon() : attackDamage{0}, durability{0}, canAttack{true}, attackCooldown{std::chrono::seconds(1)} {
+    Weapon() : attackDamage{0}, durability{0}, canAttack{false}, attackCooldown{std::chrono::seconds(1)} {
         std::cout << "Weapon created NULL" << std::endl;
     }
     Weapon(int attackDamage_, unsigned int durability_) : attackDamage{attackDamage_}, durability{durability_},
-    canAttack{true}, attackCooldown{std::chrono::seconds(1)} {
-        std::cout << "Weapon created ";
-        print();
+                                                          canAttack{true}, attackCooldown{std::chrono::seconds(1)} {
+        std::cout << "Weapon created " << *this;
     }
     Weapon(const Weapon& other) : attackDamage{other.attackDamage}, durability{other.durability},
-    canAttack{other.canAttack}, attackCooldown{std::chrono::seconds(1)}{
-        std::cout << "Weapon copied ";
-        print();
+                                  canAttack{other.canAttack}, attackCooldown{std::chrono::seconds(1)}{
+        std::cout << "Weapon copied "<< *this;
     }
 
     Weapon& operator= (const Weapon& other) {
         attackDamage = other.attackDamage;
         durability = other.durability;
         canAttack = other.canAttack;
-        std::cout << "Weapon operator= ";
-        print();
+        std::cout << "Weapon operator= " << *this;
         return *this;
     }
+
+    [[nodiscard]] virtual Weapon* clone() const { return new Weapon(*this); }
 
 //    int getAttackDamage() const { return attackDamage; }
 //    void setAttackDamage(int attackDamage_) { attackDamage = attackDamage_; }
 //    unsigned int getDurability() const { return durability; }
 //    void setDurability(unsigned int durability_) { durability = durability_; }
 
-    void attack(DynamicObject& obj) {
+    void attack(DynamicObject& target) {
         if(canAttack) {
             canAttack = false;
-            obj.setHp(obj.getHp() - this->attackDamage);
-            std::cout<<obj.getHp()<<std::endl;
+            target.setHp(target.getHp() - this->attackDamage);
+            std::cout<<target.getHp()<<std::endl;
             std::cout << "ATTACK" << std::endl;
 
             lastAttackTime = std::chrono::steady_clock::now();
             std::thread cooldownTimer([this]() {
                 std::this_thread::sleep_for(attackCooldown);
                 canAttack = true;
-                std::cout<<"TIME ENDED\n";
+                std::cout<<"COOLDOWN ENDED\n";
             });
             cooldownTimer.detach();
         }
@@ -281,62 +348,172 @@ public:
         }
     }
 
-    void print() const {
-        std::cout << "Weapon : attackDamage = " << attackDamage << " and durability = " << durability << std::endl;
-    }
+    virtual void draw(sf::RenderWindow& window) {}
+    virtual void render() {}
+    virtual void deallocate() {}
+
     friend std::ostream& operator<< (std::ostream& os, const Weapon& obj) {
-        os<< "Weapon : attackDamage = " << obj.attackDamage << " and durability = " <<obj.durability << std::endl;
+        obj.print(os);
+        os<<std::endl;
         return os;
     }
 
-    ~Weapon() { std::cout << "Weapon was destroyed" << std::endl; }
+    virtual ~Weapon() {
+        std::cout << "Weapon was destroyed" << std::endl;
+    }
 };
-
-/*
-class Bullet : public Weapon, public DynamicObject{
-public:
-//    Bullet(){std::cout<<"";};
-//    Bullet(int attackDamage_, unsigned int durability_) :
-//        Weapon{attackDamage_,durability_}, DynamicObject{{0,0},{20,10},0,20}{}
-};
-*/
 
 class Controllable{
 protected:
-    Weapon wpn;
+    Weapon* wpn;
 public:
-    Controllable(): wpn{} {}
-    explicit Controllable(Weapon& wpn_) : wpn{wpn_}{}
-    Controllable(const Controllable& other): wpn{other.wpn}{std::cout<<"wpn copied\n";}
+    Controllable(): wpn{nullptr} {}
 
-    virtual void canAttack(std::shared_ptr<DynamicObject> obj) = 0;
+    //explicit Controllable(Weapon& wpn_) { wpn = new Weapon(wpn_);}
+
+    Controllable(const Controllable& other){
+        if(other.wpn != nullptr) {
+            wpn = other.wpn->clone();
+        }
+        else{
+            wpn = nullptr;
+        }
+        std::cout<<"Controllable copied\n";
+    }
+
+    Controllable& operator= (Controllable* other){
+        std::cout<<"Controllable operator=\n";
+        swap(*this,*other);
+        return *this;
+    }
+
+    friend void swap(Controllable &c1, Controllable &c2) {
+        std::swap(c1.wpn,c2.wpn);
+    }
+
+    [[nodiscard]] Weapon* getWeapon() const {return wpn;}
+    virtual void addWeapon(Weapon& wpn_) = 0;
+
+    virtual void possibleAttack(DynamicObject& obj) = 0;
 
     virtual void move() = 0;
 
-    //const Weapon& getWpn() const {return wpn;}
-    //void setWpn(const Weapon& wpn_) {wpn = wpn_;}
+    virtual ~Controllable() = default;
+
 };
+
+class Bullet : public DynamicObject, public Controllable{
+private:
+    int range;
+public:
+    explicit Bullet(sf::Vector2f position): DynamicObject{position,{20,10},0,5},
+                                            Controllable(), range{150}{
+        shape.setFillColor(sf::Color::White);
+        std::cout<<"Bullet Created\n";
+    }
+
+    void move() override {
+        shape.move(-speed,0);
+        range--;
+        if(range == 0){
+            wpn->deallocate();
+        }
+    }
+
+    void possibleAttack(DynamicObject& target) override {
+        if(wpn != nullptr){
+            if(this->getCollisionBox().checkCollision(target.getCollisionBox(),1.0)) {
+                std::cout<<"YOU'VE BEEN SHOT"<<std::endl;
+                wpn->attack(target);
+                wpn->deallocate();
+            }
+        }
+    }
+
+    void addWeapon(Weapon& wpn_) override{ wpn = &wpn_; }
+
+    ~Bullet() override {
+        std::cout<<"Bullet destroyed\n";
+    }
+
+};
+
+class Gun : public Weapon{
+    Bullet* bullet;
+
+    void print(std::ostream& os) const override {
+        os << "Gun : attackDamage = " << attackDamage << " and durability = " << durability;
+    }
+
+public:
+    Gun() : Weapon(), bullet{nullptr}{
+        std::cout << "Gun created NULL" << std::endl;
+    }
+    Gun(int attackDamage_, unsigned int durability_) :  Weapon{attackDamage_, durability_}, bullet{nullptr} {
+        std::cout << "Gun created " << *this;
+    }
+    explicit Gun(const Weapon& wpn_) :  Weapon{wpn_}, bullet{nullptr} {
+        std::cout<<"Gun copied "<< *this;
+    }
+
+    [[nodiscard]] Weapon* clone() const override { return new Gun(*this); }
+
+    [[nodiscard]] Bullet* getBullet() const{ return bullet; }
+
+    void shoot(const sf::Vector2f position){
+        if(bullet == nullptr){
+            bullet = new Bullet(position);
+            bullet->addWeapon(*this);
+        }
+    }
+
+    void draw(sf::RenderWindow& window) override{
+        if(bullet != nullptr){
+            bullet->draw(window);
+        }
+    }
+    void render() override{
+        if(bullet != nullptr){
+            bullet->move();
+        }
+    }
+
+    void deallocate() override {
+        delete bullet;
+        bullet = nullptr;
+    }
+
+    ~Gun() override {
+        std::cout<<"Gun destroyed\n";
+    }
+
+};
+
 
 class Player : public DynamicObject, public Controllable{
 public:
-    Player(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_, Weapon wpn_) :
-    DynamicObject{position_, size_, hp_, speed_}, Controllable(wpn_) {
+    Player(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_) :
+    DynamicObject{position_, size_, hp_, speed_}, Controllable() {
         std::cout << "Player created " << std::endl;
-        shape.setFillColor(sf::Color::Magenta);
+        shape.setFillColor(sf::Color::Green);
     }
 
     void move() override{
+        float relative_speed = speed;
+        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift)) {
+            relative_speed = speed*1.5f;
+        }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::A)){
-            shape.move(-speed,0);
+            shape.move(-relative_speed,0);
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::D)){
-            shape.move(speed,0);
+            shape.move(relative_speed,0);
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::W)){
-            shape.move(0,-speed);
+            shape.move(0,-relative_speed);
         }
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::S)){
-            shape.move(0,speed);
+            shape.move(0,relative_speed);
         }
         position.x = shape.getPosition().x;
         position.y = shape.getPosition().y;
@@ -351,96 +528,193 @@ public:
         }
     }
 
-    void canAttack(std::shared_ptr<DynamicObject> obj) override{
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)){
-            wpn.attack(*obj);
+    void addWeapon(Weapon& wpn_) override {
+        wpn = new Weapon(wpn_);
+    }
+
+    void possibleAttack(DynamicObject& target) override{
+        if(wpn != nullptr){
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)){
+                wpn->attack(target);
+            }
         }
     }
 
     ~Player() override{
+        delete wpn;
         std::cout << "Player destroyed " << std::endl;
     }
 
 };
 
 class Enemy : public DynamicObject, public Controllable{
+private:
+    static Text ct_text;
+    static int counter;
     int steps;
     int stepsMax;
 public:
-    Enemy(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_, Weapon wpn_) :
-    DynamicObject{position_, size_, hp_, speed_}, Controllable(wpn_), steps{0}, stepsMax{200} {
+    Enemy(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_) :
+    DynamicObject{position_, size_, hp_, speed_}, Controllable(), steps{0}, stepsMax{400} {
         std::cout << "Enemy created " << std::endl;
         shape.setFillColor(sf::Color::Red);
+        counter++;
     }
     Enemy(const Enemy& other) : DynamicObject{other}, Controllable{other}, steps{0}, stepsMax{other.stepsMax} {
         std::cout << "Enemy copied " << std::endl;
+        counter++;
     }
 
     Enemy& operator= (const Enemy& other) {
         DynamicObject::operator=(other);
+        Controllable::operator=(other);
         std::cout << " Enemy operator= ";
         return *this;
     }
 
+    static void updateCounter(sf::RenderWindow& window) {
+        ct_text.getText().setString("Enemies remaining : " + std::to_string(counter));
+        ct_text.draw(window);
+    }
+    static int getCounter(){ return counter;}
+
     void move() override{
-        if(steps>=0){
-            shape.move(+speed,0);
-            steps++;
-            if(steps==stepsMax-1){steps=(-1)*stepsMax;};
+        if(steps / (stepsMax / 4) == 0){
+            shape.move(+speed,-speed/4);
+            if(steps==stepsMax-1){steps=(-1)*stepsMax;}
+        }
+        else if(steps / (stepsMax / 4) == 1){
+            shape.move(+speed,+speed/4);
+        }
+        else if(steps / (stepsMax / 4) == 2){
+            shape.move(-speed,+speed/4);
+        }
+        else if(steps / (stepsMax / 4) == 3){
+            shape.move(-speed,-speed/4);
         }
         else{
-            shape.move(-speed,0);
-            steps++;
+            steps = -1;
+        }
+        steps++;
+        position.x = shape.getPosition().x;
+        position.y = shape.getPosition().y;
+        if(wpn != nullptr){
+            wpn->render();
         }
     }
-    void canAttack(std::shared_ptr<DynamicObject> player) override{
-        if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Q)){
-            wpn.attack(*player);
+
+    void addWeapon(Weapon& wpn_) override {
+        wpn = new Gun(wpn_);
+    }
+
+    void possibleAttack(DynamicObject& player) override{
+        if(wpn != nullptr){
+            Gun *enemy_wpn = dynamic_cast<Gun *>(wpn);
+            if (enemy_wpn != nullptr) {
+                enemy_wpn->shoot(position);
+            }
+        }
+    }
+
+    void draw(sf::RenderWindow& window) override {
+        window.draw(shape);
+        if(wpn != nullptr) {
+            wpn->draw(window);
         }
     }
 
     ~Enemy() override{
+        counter--;
+        delete wpn;
         std::cout << "Enemy destroyed " << std::endl;
     }
+
 };
+
+int Enemy::counter = 0;
+Text Enemy::ct_text{"Enemies remaining : ", {-50,-100}};
 
 class Level{
 private:
+    Player& player;
+    std::vector<std::shared_ptr<Text>> instructions;
     std::vector<std::shared_ptr<Object>> platforms;
     std::vector<std::shared_ptr<Object>> dynamicObjects;
-    std::vector<std::shared_ptr<Object>> enemies;
-public:
-    Level(){
-        std::shared_ptr<Object> ptr;
+    std::vector<std::shared_ptr<Enemy>> enemies;
 
+    void init_instructions(){
+        std::shared_ptr<Text> text_ptr;
+        text_ptr = std::make_shared<Text>(Text{"Move with WASD", {400,-50}});
+        instructions.push_back(text_ptr);
+        text_ptr = std::make_shared<Text>(Text{"Press E to attack (punch) the red ones ",{350,80}});
+        instructions.push_back(text_ptr);
+    }
+
+    void init_platforms(){
+        std::shared_ptr<Object> ptr;
         ptr = std::make_shared<Platform>(Platform{{100,400},{200,50},100});
         platforms.push_back(ptr);
         ptr = std::make_shared<Platform>(Platform{{300,400},{200,50},100});
         platforms.push_back(ptr);
-        ptr = std::make_shared<Platform>(Platform{{500,120},{200,50},100});
+        ptr = std::make_shared<Platform>(Platform{{500,20},{200,50},100});
         platforms.push_back(ptr);
         ptr = std::make_shared<Platform>(Platform{{100,150},{200,50},100});
         platforms.push_back(ptr);
         ptr = std::make_shared<Platform>(Platform{{200,600},{200,50},100});
         platforms.push_back(ptr);
 
+        ptr = std::make_shared<Platform>(Platform{{-500,-500},{5000,20},100});
+        platforms.push_back(ptr);
+        ptr = std::make_shared<Platform>(Platform{{1500,-500},{20,5000},100});
+        platforms.push_back(ptr);
+        ptr = std::make_shared<Platform>(Platform{{1500,1500},{5000,20},100});
+        platforms.push_back(ptr);
+        ptr = std::make_shared<Platform>(Platform{{-500,1500},{20,5000},100});
+        platforms.push_back(ptr);
+    }
+
+    void init_objects(){
+        std::shared_ptr<Object> ptr;
         ptr = std::make_shared<DynamicObject>(DynamicObject{{100,300},{100,100},100,5});
         dynamicObjects.push_back(ptr);
         ptr = std::make_shared<DynamicObject>(DynamicObject{{100,500},{100,100},100,5});
         dynamicObjects.push_back(ptr);
-        ptr = std::make_shared<DynamicObject>(DynamicObject{{500,300},{100,100},100,5});
+        ptr = std::make_shared<DynamicObject>(DynamicObject{{400,300},{100,100},100,5});
         dynamicObjects.push_back(ptr);
+        ptr = std::make_shared<DynamicObject>(DynamicObject{{300,500},{100,100},100,5});
+        dynamicObjects.push_back(ptr);
+    }
 
-        ptr = std::make_shared<Enemy>(Enemy{{500,400},{100,100},100,1,{5,100}});
-        enemies.push_back(ptr);
-        ptr = std::make_shared<Enemy>(Enemy{{500,500},{100,100},100,1,{5,100}});
-        enemies.push_back(ptr);
+    void init_enemy(){
+        std::shared_ptr<Enemy> enemy_ptr;
+        Gun gun = Gun{100,100};
+
+        enemy_ptr = std::make_shared<Enemy>(Enemy{{500,400},{120,120},100,1});
+        enemies.push_back(enemy_ptr);
+        enemy_ptr = std::make_shared<Enemy>(Enemy{{500,700},{120,120},100,1});
+        enemies.push_back(enemy_ptr);
+
+        Enemy e1 = Enemy{{800,400},{100,100},100,1};
+        e1.addWeapon(gun);
+        enemy_ptr = std::make_shared<Enemy>(e1);
+        enemies.push_back(enemy_ptr);
+
+        Enemy e2 = Enemy{{800,700},{100,100},100,1};
+        e2.addWeapon(gun);
+        enemy_ptr = std::make_shared<Enemy>(e2);
+        enemies.push_back(enemy_ptr);
 
     }
 
-    unsigned long int getEnemiesSize(){return enemies.size();}
+public:
+    explicit Level(Player& player_) : player{player_} {
+        init_instructions();
+        init_platforms();
+        init_objects();
+        init_enemy();
+    }
 
-    bool checkCollisionsPlayerPlatforms(Player& player) {
+    bool checkCollisionsPlayerPlatforms() {
         bool collide = false;
         for (auto &platform: platforms) {
             if (platform->getCollisionBox().checkCollision(player.getCollisionBox(), 1.0)) {collide = true;}
@@ -448,201 +722,120 @@ public:
         return collide;
     }
 
-    bool checkCollisionsPlayerObjects(Player& player) {
+    bool checkCollisionsPlayer(auto& objects) {
         bool collide = false;
-        for (unsigned long int i=0;i<dynamicObjects.size();i++) {
-            auto& object = dynamicObjects[i];
-            if (object->getCollisionBox().checkCollision(player.getCollisionBox(), 0.5)) {
+        for (unsigned long int i=0;i<objects.size();i++) {
+            auto& obj = objects[i];
+            if (obj->getCollisionBox().checkCollision(player.getCollisionBox(), 0.5)) {
                 collide = true;
-                std::shared_ptr<DynamicObject> obj = std::dynamic_pointer_cast<DynamicObject>(object);
-                player.canAttack(obj);
-                if(obj->checkHP()){
-                    dynamicObjects.erase(dynamicObjects.begin()+i);
+                std::shared_ptr<DynamicObject> d_obj = std::dynamic_pointer_cast<DynamicObject>(obj);
+                if(d_obj != nullptr) {
+                    player.possibleAttack(*d_obj);
+                    if (d_obj->checkHP()) {
+                        objects.erase(objects.begin() + i);
+                    }
                 }
             }
         }
         return collide;
     }
 
-    bool checkCollisionsPlayerEnemy(Player& player) {
+    bool checkCollisions(auto& objects) {
         bool collide = false;
-        for (unsigned long int i=0;i<enemies.size();i++) {
-            auto& enemy = enemies[i];
-            if (enemy->getCollisionBox().checkCollision(player.getCollisionBox(), 0.5)) {
-                collide = true;
-                std::shared_ptr<DynamicObject> obj = std::dynamic_pointer_cast<DynamicObject>(enemy);
-                player.canAttack(obj);
-                if(obj->checkHP()){
-                    enemies.erase(enemies.begin()+i);
+        for (unsigned long long i=0;i<objects.size();i++) {
+            for(unsigned long long j=i+1;j<objects.size();j++){
+                if (objects[i]->getCollisionBox().checkCollision(objects[j]->getCollisionBox(), 0.5)) {collide = true;}
+            }
+        }
+        return collide;
+    }
+
+    bool checkCollisions(auto& objects1, auto& objects2, float resistance){
+        bool collide = false;
+        for(auto & obj1 : objects1){
+            for (auto & obj2 : objects2) {
+                if (obj2->getCollisionBox().checkCollision(obj1->getCollisionBox(), resistance)) {collide = true;}
+            }
+        }
+        return collide;
+    }
+
+    void checkAllCollisions(){
+        checkCollisionsPlayerPlatforms();
+        checkCollisionsPlayer(dynamicObjects);
+        checkCollisionsPlayer(enemies);
+        checkCollisions(enemies);
+        checkCollisions(dynamicObjects);
+        checkCollisions(enemies,platforms,1.0);
+        checkCollisions(enemies,dynamicObjects,0.5);
+        checkCollisions(dynamicObjects,platforms,1.0);
+    }
+
+    void renderEnemies(PlayStates& play_state){
+        for(auto & enemy : enemies){
+            if(enemy != nullptr) {
+                enemy->move();
+                enemy->possibleAttack(player);
+                Gun* enemy_wpn = dynamic_cast<Gun*>(enemy->getWeapon());
+                if(enemy_wpn != nullptr){
+                    Bullet* bullet = enemy_wpn->getBullet();
+                    if(bullet != nullptr){
+                        bullet->possibleAttack(player);
+                        if (player.checkHP()) {
+                            play_state = lost;
+                            return;
+                        }
+                        for (unsigned long int i=0;i<dynamicObjects.size();i++) {
+                            auto &obj = dynamicObjects[i];
+                            std::shared_ptr<DynamicObject> d_obj = std::dynamic_pointer_cast<DynamicObject>(obj);
+                            if (d_obj != nullptr) {
+                                bullet->possibleAttack(*d_obj);
+                                if (d_obj->checkHP()) {
+                                    dynamicObjects.erase(dynamicObjects.begin() + i);
+                                }
+                            }
+                        }
+                    }
                 }
             }
         }
-        return collide;
     }
-
-    bool checkCollisionsEnemyPlatforms() {
-        bool collide = false;
-        for(auto & enemy : enemies){
-            for (auto & platform : platforms) {
-                if (platform->getCollisionBox().checkCollision(enemy->getCollisionBox(), 1.0)) {collide = true;}
-            }
-        }
-        return collide;
-    }
-
-    bool checkCollisionsEnemyObjects() {
-        bool collide = false;
-        for (auto& enemy : enemies) {
-            for(auto& obj : dynamicObjects){
-                if (enemy->getCollisionBox().checkCollision(obj->getCollisionBox(), 0.5)) {collide = true;}
-            }
-        }
-        return collide;
-    }
-
-    bool checkCollisionsEnemyEnemy() {
-        bool collide = false;
-        for (unsigned long long i=0;i<enemies.size();i++) {
-            for(unsigned long long j=i+1;j<enemies.size();j++){
-                if (enemies[i]->getCollisionBox().checkCollision(enemies[j]->getCollisionBox(), 0.5)) {collide = true;}
-            }
-        }
-        return collide;
-    }
-
-    //bool checkCollisionsEnemyPlayer();
-
-    bool checkCollisionsObjectsPlatforms() {
-        bool collide = false;
-        for(auto & object : dynamicObjects){
-            for (auto & platform : platforms) {
-                if (platform->getCollisionBox().checkCollision(object->getCollisionBox(), 1.0)) {collide = true;}
-            }
-        }
-        return collide;
-    }
-
-    bool checkCollisionsObjectsObjects() {
-        bool collide = false;
-        for (unsigned long long i=0;i<dynamicObjects.size();i++) {
-            for(unsigned long long j=i+1;j<dynamicObjects.size();j++){
-                if (dynamicObjects[i]->getCollisionBox().checkCollision(dynamicObjects[j]->getCollisionBox(), 0.5)) {collide = true;}
-            }
-        }
-        return collide;
-    }
-
-    //bool checkCollisionsPlayerBullets(Player& p){}
-
-    void checkAllCollisions(Player& player){
-        checkCollisionsPlayerPlatforms(player);
-        checkCollisionsPlayerObjects(player);
-        checkCollisionsPlayerEnemy(player);
-        checkCollisionsEnemyPlatforms();
-        checkCollisionsEnemyObjects();
-        checkCollisionsEnemyEnemy();
-        checkCollisionsObjectsPlatforms();
-        checkCollisionsObjectsObjects();
-    }
-
-    void moveEnemies(){
-        for(auto & enemy : enemies){
-            std::shared_ptr<Enemy> obj = std::dynamic_pointer_cast<Enemy>(enemy);
-            obj->move();
-        }
-    };
 
     void draw(sf::RenderWindow& window){
         for(auto& platform : platforms){
             platform->draw(window);
         }
-        for (auto &object: dynamicObjects) {
+        for (auto& object: dynamicObjects) {
             object->draw(window);
         }
-        for (auto &enemy: enemies) {
+        for (auto& enemy: enemies) {
             enemy->draw(window);
+            enemy->showHP(window);
+        }
+        for(auto& instruction : instructions){
+            instruction->draw(window);
         }
     }
 
-};
-
-class Text{
-private:
-    sf::Font font;
-    sf::Text text;
-public:
-    Text(const std::string& str, const sf::Vector2f position){
-        font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
-        text.setFont(font);
-        text.setString(str);
-        text.setCharacterSize(22);
-        text.setFillColor(sf::Color::White);
-        text.setPosition(position);
-    }
-
-    sf::Vector2f getPosition() const {return text.getPosition();}
-
-    void setSize(unsigned int size){
-        text.setCharacterSize(size);
-    }
-
-    void draw(sf::RenderWindow& window){
-        window.draw(text);
-    }
+    ~Level() = default;
 
 };
 
-void testPlatform() {
-    //    TESTING Platform class
-    Platform platform1{};
-    Platform platform2{{100,400},{50,200},100};
-    Platform platform3{platform1};
-    platform3 = platform2;
-    platform1.setPosition({500,500});
-    platform1.setSize({20,20});
-    platform1.setDurability(100);
-    std::cout<<platform1<<platform3;
 
-    std::cout << " --- RETURNING --- " << std::endl;
-}
-
-void testDynamicObject() {
-    //    TESTING DynamicObject class
-    Weapon none{};
-    DynamicObject obj1{};
-    DynamicObject obj2{{100,100},{50,50},100,5};
-    DynamicObject obj3{obj1};
-    obj3 = obj2;
-    obj1.setPosition({500,500});
-    obj1.setSize({20,20});
-    obj1.setHp(100);
-    obj1.setSpeed(5);
-    std::cout<<obj1<<obj3;
-    Weapon w{10,100};
-
-    std::cout << " --- RETURNING --- " << std::endl;
-}
-
-void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, Level& level, std::vector<Text*>& instructions, bool& playing){
-    level.moveEnemies();
+void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, std::shared_ptr<Level>& level, PlayStates& play_state){
+    level->renderEnemies(play_state);
     player.move();
     player.drag(window);
     view.setCenter(player.getPosition());
 
-    level.checkAllCollisions(player);
-    if (level.getEnemiesSize()==0) { playing = false; }
+    level->checkAllCollisions();
 
-//    if(!player.getWeapon().getCanAttack()){
-//        std::thread timerThread(Weapon :: attackTimer);
-//    }
+    if (Enemy::getCounter()==0) { play_state = won; }
 
-
-    window.clear();
+    window.clear(sf::Color(32, 32, 32));
     player.draw(window);
-    level.draw(window);
-    for(auto& instruction : instructions){
-        instruction->draw(window);
-    }
+    level->draw(window);
+    Enemy::updateCounter(window);
     window.setView(view);
     window.display();
 }
@@ -652,13 +845,6 @@ int main() {
     /// NOTE: this function call is needed for environment-specific fixes //
     //init_threads();                                                       //
     ////////////////////////////////////////////////////////////////////////
-
-    testPlatform();
-    testDynamicObject();
-
-    std::cout << " --- RETURNING --- " << std::endl;
-
-
 
     ///////////////////////////////////////////////////////////////////////////
 //    Helper helper;
@@ -682,19 +868,18 @@ int main() {
 
     sf::View view{sf::Vector2f(0,0),sf::Vector2f(800,700)};
 
-    Text text_instruction{"Press E to attack (the red ones)",{350,200}};
-    Text text_movement{"Move with WASD", {400,50}};
-    Text text_you_won{"You won !",{300,300}};
-    text_you_won.setSize(50);
-    std::vector<Text*> instructions;
-    instructions.push_back(&text_instruction);
-    instructions.push_back(&text_movement);
+    Text text_respawn{"Press R to respawn",{310,500}};
+    Text text_you_won{"You won!",{300,300}};
+    Text text_you_lost{"You lost :(",{300,300}};
+    Text text_final;
 
-    Player obj{{100,100},{100,100},100,5,{25,100}};
-    obj.getShape().setFillColor(sf::Color::Green);
-    Level level{};
+    Player player{{100,100},{100,100},100,5};
+    Weapon wpn = Weapon{25,100};
+    player.addWeapon(wpn);
+    std::shared_ptr<Level> level = std::make_shared<Level>(Level{player});
 
-    bool playing = true;
+    PlayStates play_state = playing;
+
     while(window.isOpen()) {
         bool shouldExit = false;
         sf::Event e{};
@@ -721,16 +906,27 @@ int main() {
             break;
         }
 
-        if (playing) {
-            gameplay(window,view,obj,level,instructions,playing);
+        if (play_state == playing) {
+            gameplay(window,view,player,level,play_state);
         }
         else {
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Y)){
-                playing=true;
+            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)){
+                player.setHp(100);
+                player.setPosition({0,0});
+                play_state = playing;
+                level = std::make_shared<Level>(Level{player});
             }
-            window.clear();
-            text_you_won.draw(window);
-            view.setCenter(text_you_won.getPosition().x+text_you_won.getPosition().x/2,text_you_won.getPosition().y+text_you_won.getPosition().y/2);
+            window.clear(sf::Color(32, 32, 32));
+            if(play_state == won) {
+                text_final = text_you_won;
+            }
+            else if(play_state == lost){
+                text_final = text_you_lost;
+            }
+            text_final.setSize(50);
+            text_final.draw(window);
+            view.setCenter(text_final.getPosition().x+text_final.getPosition().x/2,text_final.getPosition().y+text_final.getPosition().y/2);
+            text_respawn.draw(window);
             window.setView(view);
             window.display();
         }
@@ -738,12 +934,3 @@ int main() {
 
     return 0;
 }
-
-
-// object -> platform
-//
-//        -> dynamic + controlable -> enemy  -> boss
-//                                 -> player
-
-// weapon -> sword
-//        -> bullet
