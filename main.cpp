@@ -260,11 +260,13 @@ public:
         return *this;
     }
 
-    void showHP(sf::RenderWindow& window) {
-        hp_text.getText().setString(std::to_string(hp));
-        hp_text.getText().setOrigin(this->getShape().getOrigin());
-        hp_text.getText().setPosition(this->position);
-        hp_text.draw(window);
+    void showHP(sf::RenderWindow* window) {
+        if(window != nullptr) {
+            hp_text.getText().setString(std::to_string(hp));
+            hp_text.getText().setOrigin(this->getShape().getOrigin());
+            hp_text.getText().setPosition(this->position);
+            hp_text.draw(*window);
+        }
     }
 
     unsigned int getHp() const {return hp;}
@@ -341,7 +343,10 @@ public:
         }
     }
 
-    virtual void draw(sf::RenderWindow& window) {}
+    virtual void draw(sf::RenderWindow& window) {
+        Object obj;
+        obj.draw(window);
+    }
     virtual void render() {}
     virtual void deallocate() {}
 
@@ -604,6 +609,7 @@ public:
             Gun *enemy_wpn = dynamic_cast<Gun *>(wpn);
             if (enemy_wpn != nullptr) {
                 enemy_wpn->shoot(position);
+                player.showHP(nullptr);
             }
         }
     }
@@ -638,7 +644,7 @@ private:
         std::shared_ptr<Text> text_ptr;
         text_ptr = std::make_shared<Text>(Text{"Move with WASD", {400,-50}});
         instructions.push_back(text_ptr);
-        text_ptr = std::make_shared<Text>(Text{"Press E to attack (punch) the red ones ",{350,80}});
+        text_ptr = std::make_shared<Text>(Text{"Press E to attack (punch) ",{350,80}});
         instructions.push_back(text_ptr);
     }
 
@@ -802,7 +808,7 @@ public:
         }
         for (auto& enemy: enemies) {
             enemy->draw(window);
-            enemy->showHP(window);
+            enemy->showHP(&window);
         }
         for(auto& instruction : instructions){
             instruction->draw(window);
