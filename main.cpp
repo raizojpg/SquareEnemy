@@ -379,8 +379,20 @@ public:
         std::cout<<"Controllable copied\n";
     }
 
+    Controllable& operator= (const Controllable& other) {
+        if(this != &other) {
+            std::cout << "Controllable operator=\n";
+            Weapon *aux = other.getWeapon();
+            if (aux != nullptr) {
+                delete this->wpn;
+                this->wpn = aux;
+            }
+        }
+        return *this;
+    }
+
     Controllable& operator= (Controllable* other){
-        std::cout<<"Controllable operator=\n";
+        std::cout<<"Controllable swap\n";
         swap(*this,*other);
         delete other->getWeapon();
         return *this;
@@ -872,7 +884,7 @@ int main() {
     Text text_final;
 
     Player player{{100,100},{100,100},100,5};
-    Weapon wpn = Weapon{25,100};
+    Weapon wpn = Weapon{50,100};
     player.addWeapon(wpn);
     std::shared_ptr<Level> level = std::make_shared<Level>(Level{player});
 
