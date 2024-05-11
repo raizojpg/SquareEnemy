@@ -2,6 +2,7 @@
 #define OOP_ERROR_H
 
 #include <stdexcept>
+#include <string>
 
 class GameError : public std::runtime_error {
     using std::runtime_error::runtime_error;

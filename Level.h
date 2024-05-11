@@ -1,6 +1,8 @@
 #ifndef OOP_LEVEL_H
 #define OOP_LEVEL_H
 
+#include <vector>
+#include <memory>
 #include "Player.h"
 #include "Enemy.h"
 #include "Platform.h"
