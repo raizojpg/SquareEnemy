@@ -107,6 +107,34 @@ add_executable(${PROJECT_NAME}
     main.cpp
     generated/src/Helper.cpp
     env_fixes.h
+        Text.cpp
+        Text.h
+        Text.cpp
+        Text.h
+        Collision.cpp
+        Collision.h
+        Object.cpp
+        Object.h
+        Error.cpp
+        Error.h
+        Platform.cpp
+        Platform.h
+        DynamicObject.cpp
+        DynamicObject.h
+        Weapon.cpp
+        Weapon.h
+        Gun.cpp
+        Gun.h
+        Controllable.cpp
+        Controllable.h
+        Bullet.cpp
+        Bullet.h
+        Player.cpp
+        Player.h
+        Enemy.cpp
+        Enemy.h
+        Level.cpp
+        Level.h
 )
 
 ###############################################################################
