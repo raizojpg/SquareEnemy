@@ -30,6 +30,35 @@ std::ostream& operator<< (std::ostream& os, const sf::Vector2f& vec2f){
 
 enum PlayStates {playing,lost,won};
 
+class GameError : public std::runtime_error {
+    using std::runtime_error::runtime_error;
+};
+
+class ObjectError : public GameError {
+public:
+    explicit ObjectError(const std::string& msg) :
+            GameError("OBJECT ERROR: " + msg) {}
+};
+
+class DynamicObjectError : public GameError {
+public:
+    explicit DynamicObjectError(const std::string& msg) :
+            GameError("DYNAMIC OBJECT ERROR: " + msg) {}
+};
+
+class EnemyError : public GameError {
+public:
+    explicit EnemyError(const std::string& msg) :
+            GameError("ENEMY ERROR: " + msg) {}
+};
+
+class WeaponError : public GameError {
+public:
+    explicit WeaponError(const std::string& msg) :
+            GameError("WEAPON ERROR: " + msg) {}
+};
+
+
 class Text{
 private:
     sf::Font font;
@@ -151,6 +180,9 @@ public:
     }
 
     Object(sf::Vector2f position_, sf::Vector2f size_) : position{ position_ }, size{ size_ }{
+        if(size.x<0 || size.y<0){
+            throw ObjectError("You tried to create an object with negative size");
+        }
         std::cout << "Object created " << *this;
         shape = sf::RectangleShape{size};
         shape.setFillColor(sf::Color::Magenta);
@@ -245,6 +277,9 @@ public:
     }
     DynamicObject(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_) :
             Object{position_, size_}, hp{hp_}, speed{speed_} {
+        if(speed<0){
+            throw DynamicObjectError("Speed must be positive in order to move in this universe");
+        }
         std::cout << "DynamicObject created " << std::endl;
         shape.setFillColor(sf::Color::Cyan);
     }
@@ -301,6 +336,9 @@ public:
     }
     Weapon(int attackDamage_, unsigned int durability_) : attackDamage{attackDamage_}, durability{durability_},
                                                           canAttack{true}, attackCooldown{std::chrono::seconds(1)} {
+        if(attackDamage<0){
+            throw WeaponError("Your attackDamage is negative, your weapon will heall instead of hraming :)");
+        }
         std::cout << "Weapon created " << *this;
     }
     Weapon(const Weapon& other) : attackDamage{other.attackDamage}, durability{other.durability},
@@ -562,15 +600,18 @@ private:
     static Text ct_text;
     static int counter;
     int steps;
-    int stepsMax;
+    int maxSteps;
 public:
-    Enemy(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_) :
-    DynamicObject{position_, size_, hp_, speed_}, Controllable(), steps{0}, stepsMax{400} {
+    Enemy(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_, int maxSteps_) :
+    DynamicObject{position_, size_, hp_, speed_}, Controllable(), steps{0}, maxSteps{maxSteps_} {
+        if(maxSteps < 0){
+            throw EnemyError("Your enemy must have a positive number of maxSteps in order to move");
+        }
         std::cout << "Enemy created " << std::endl;
         shape.setFillColor(sf::Color::Red);
         counter++;
     }
-    Enemy(const Enemy& other) : DynamicObject{other}, Controllable{other}, steps{0}, stepsMax{other.stepsMax} {
+    Enemy(const Enemy& other) : DynamicObject{other}, Controllable{other}, steps{0}, maxSteps{other.maxSteps} {
         std::cout << "Enemy copied " << std::endl;
         counter++;
     }
@@ -578,6 +619,7 @@ public:
     Enemy& operator= (const Enemy& other) {
         DynamicObject::operator=(other);
         Controllable::operator=(other);
+        maxSteps = other.maxSteps;
         std::cout << " Enemy operator= ";
         return *this;
     }
@@ -589,17 +631,17 @@ public:
     static int getCounter(){ return counter;}
 
     void move() override{
-        if(steps / (stepsMax / 4) == 0){
+        if(steps / (maxSteps / 4) == 0){
             shape.move(+speed,-speed/4);
-            if(steps==stepsMax-1){steps=(-1)*stepsMax;}
+            if(steps==maxSteps-1){steps=(-1)*maxSteps;}
         }
-        else if(steps / (stepsMax / 4) == 1){
+        else if(steps / (maxSteps / 4) == 1){
             shape.move(+speed,+speed/4);
         }
-        else if(steps / (stepsMax / 4) == 2){
+        else if(steps / (maxSteps / 4) == 2){
             shape.move(-speed,+speed/4);
         }
-        else if(steps / (stepsMax / 4) == 3){
+        else if(steps / (maxSteps / 4) == 3){
             shape.move(-speed,-speed/4);
         }
         else{
@@ -663,15 +705,16 @@ private:
 
     void init_platforms(){
         std::shared_ptr<Object> ptr;
-        ptr = std::make_shared<Platform>(Platform{{100,400},{200,50},100});
+
+        ptr = std::make_shared<Platform>(Platform{{100, 400}, {200, 50}, 100});
         platforms.push_back(ptr);
-        ptr = std::make_shared<Platform>(Platform{{300,400},{200,50},100});
+        ptr = std::make_shared<Platform>(Platform{{300, 400}, {200, 50}, 100});
         platforms.push_back(ptr);
-        ptr = std::make_shared<Platform>(Platform{{500,20},{200,50},100});
+        ptr = std::make_shared<Platform>(Platform{{500, 20}, {200, 50}, 100});
         platforms.push_back(ptr);
-        ptr = std::make_shared<Platform>(Platform{{100,150},{200,50},100});
+        ptr = std::make_shared<Platform>(Platform{{100, 150}, {200, 50}, 100});
         platforms.push_back(ptr);
-        ptr = std::make_shared<Platform>(Platform{{200,600},{200,50},100});
+        ptr = std::make_shared<Platform>(Platform{{200, 600}, {200, 50}, 100});
         platforms.push_back(ptr);
 
         ptr = std::make_shared<Platform>(Platform{{-500,-500},{5000,20},100});
@@ -700,17 +743,17 @@ private:
         std::shared_ptr<Enemy> enemy_ptr;
         Gun gun = Gun{100,100};
 
-        enemy_ptr = std::make_shared<Enemy>(Enemy{{500,400},{120,120},100,1});
+        enemy_ptr = std::make_shared<Enemy>(Enemy{{500,400},{120,120},100,1,400});
         enemies.push_back(enemy_ptr);
-        enemy_ptr = std::make_shared<Enemy>(Enemy{{500,700},{120,120},100,1});
+        enemy_ptr = std::make_shared<Enemy>(Enemy{{500,700},{120,120},100,1,400});
         enemies.push_back(enemy_ptr);
 
-        Enemy e1 = Enemy{{800,400},{100,100},100,1};
+        Enemy e1 = Enemy{{800,400},{100,100},100,1,800};
         e1.addWeapon(gun);
         enemy_ptr = std::make_shared<Enemy>(e1);
         enemies.push_back(enemy_ptr);
 
-        Enemy e2 = Enemy{{800,700},{100,100},100,1};
+        Enemy e2 = Enemy{{800,700},{100,100},100,1,800};
         e2.addWeapon(gun);
         enemy_ptr = std::make_shared<Enemy>(e2);
         enemies.push_back(enemy_ptr);
@@ -833,6 +876,9 @@ public:
 };
 
 void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, std::shared_ptr<Level>& level, PlayStates& play_state){
+    if(level == nullptr){
+        throw GameError("\nGAME ERROR: Your game does not have a loaded level\n");
+    }
     level->renderEnemies(play_state);
     player.move();
     player.drag(window);
@@ -864,82 +910,129 @@ int main() {
 //    delete c;
     ///////////////////////////////////////////////////////////////////////////
 
+    try {
+        sf::RenderWindow window;
+        /// NOTE: sync with env variable APP_WINDOW from .github/workflows/cmake.yml:31
+        window.create(sf::VideoMode({800, 700}), "Game", sf::Style::Default);
 
-    sf::RenderWindow window;
-    /// NOTE: sync with env variable APP_WINDOW from .github/workflows/cmake.yml:31
-    window.create(sf::VideoMode({800, 700}), "Game", sf::Style::Default);
+        ///////////////////////////////////////////////////////////////////////////
+        /// NOTE: mandatory use one of vsync or FPS limit (not both)            ///
+        /// This is needed so we do not burn the GPU                            ///
+        window.setVerticalSyncEnabled(true);                            ///
+        /// window.setFramerateLimit(60);                                       ///
+        ///////////////////////////////////////////////////////////////////////////
 
-    ///////////////////////////////////////////////////////////////////////////
-    /// NOTE: mandatory use one of vsync or FPS limit (not both)            ///
-    /// This is needed so we do not burn the GPU                            ///
-    window.setVerticalSyncEnabled(true);                            ///
-    /// window.setFramerateLimit(60);                                       ///
-    ///////////////////////////////////////////////////////////////////////////
+        sf::View view{sf::Vector2f(0, 0), sf::Vector2f(800, 700)};
 
-    sf::View view{sf::Vector2f(0,0),sf::Vector2f(800,700)};
-
-    Text text_respawn{"Press R to respawn",{310,500}};
-    Text text_you_won{"You won!",{300,300}};
-    Text text_you_lost{"You lost :(",{300,300}};
-    Text text_final;
-
-    Player player{{100,100},{100,100},100,5};
-    Weapon wpn = Weapon{50,100};
-    player.addWeapon(wpn);
-    std::shared_ptr<Level> level = std::make_shared<Level>(Level{player});
-
-    PlayStates play_state = playing;
-
-    while(window.isOpen()) {
-        bool shouldExit = false;
-        sf::Event e{};
-        while (window.pollEvent(e)) {
-            switch (e.type) {
-                case sf::Event::Closed:
-                    window.close();
-                    break;
-                case sf::Event::Resized:
-                    std::cout << "New width: " << window.getSize().x << '\n'
-                              << "New height: " << window.getSize().y << '\n';
-                    break;
-                case sf::Event::TextEntered:
-                    std::cout << char(e.text.unicode);
-                    if (e.key.code == sf::Keyboard::Escape)
-                        shouldExit = true;
-                    break;
-                default:
-                    break;
-            }
+        try {
+            Gun gun = Gun{100, 100};
+            Enemy e = Enemy{{100, 400}, {-100, -100}, 100, -1, -100};
+            e.addWeapon(gun);
         }
-        if (shouldExit) {
-            window.close();
-            break;
+        catch (const ObjectError &err) {
+            std::cout << err.what() << std::endl;
+        }
+        catch (const DynamicObjectError &err) {
+            std::cout << err.what() << std::endl;
+        }
+        catch (const EnemyError &err) {
+            std::cout << err.what() << std::endl;
+        }
+        catch (const WeaponError &err) {
+            std::cout << err.what() << std::endl;
         }
 
-        if (play_state == playing) {
-            gameplay(window,view,player,level,play_state);
+        Text text_respawn{"Press R to respawn", {310, 500}};
+        Text text_you_won{"You won!", {300, 300}};
+        Text text_you_lost{"You lost :(", {300, 300}};
+        Text text_final;
+        Player player{{100, 100}, {100, 100}, 100, 5};
+        Weapon wpn = Weapon{50, 100};
+        player.addWeapon(wpn);
+
+        std::shared_ptr<Level> level;
+        try {
+            level = std::make_shared<Level>(Level{player});
         }
-        else {
-            if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)){
-                player.setHp(100);
-                player.setPosition({0,0});
-                play_state = playing;
-                level = std::make_shared<Level>(Level{player});
-            }
-            window.clear(sf::Color(32, 32, 32));
-            if(play_state == won) {
-                text_final = text_you_won;
-            }
-            else if(play_state == lost){
-                text_final = text_you_lost;
-            }
-            text_final.setSize(50);
-            text_final.draw(window);
-            view.setCenter(text_final.getPosition().x+text_final.getPosition().x/2,text_final.getPosition().y+text_final.getPosition().y/2);
-            text_respawn.draw(window);
-            window.setView(view);
-            window.display();
+        catch (const ObjectError &err) {
+            std::cout << err.what() << std::endl;
         }
+        catch (const DynamicObjectError &err) {
+            std::cout << err.what() << std::endl;
+        }
+        catch (const EnemyError &err) {
+            std::cout << err.what() << std::endl;
+        }
+        catch (const WeaponError &err) {
+            std::cout << err.what() << std::endl;
+        }
+        catch (const GameError &err) {
+            std::cout << err.what() << std::endl;
+        }
+
+        PlayStates play_state = playing;
+
+        while (window.isOpen()) {
+            bool shouldExit = false;
+            sf::Event e{};
+            while (window.pollEvent(e)) {
+                switch (e.type) {
+                    case sf::Event::Closed:
+                        window.close();
+                        break;
+                    case sf::Event::Resized:
+                        std::cout << "New width: " << window.getSize().x << '\n'
+                                  << "New height: " << window.getSize().y << '\n';
+                        break;
+                    case sf::Event::TextEntered:
+                        std::cout << char(e.text.unicode);
+                        if (e.key.code == sf::Keyboard::Escape)
+                            shouldExit = true;
+                        break;
+                    default:
+                        break;
+                }
+            }
+            if (shouldExit) {
+                window.close();
+                break;
+            }
+
+            if (play_state == playing) {
+                try {
+                    gameplay(window, view, player, level, play_state);
+                }
+                catch (const GameError &err) {
+                    std::cout << err.what() << std::endl;
+                    break;
+                }
+            } else {
+                if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
+                    player.setHp(100);
+                    player.setPosition({0, 0});
+                    play_state = playing;
+                    level = std::make_shared<Level>(Level{player});
+                }
+                window.clear(sf::Color(32, 32, 32));
+                if (play_state == won) {
+                    text_final = text_you_won;
+                } else if (play_state == lost) {
+                    text_final = text_you_lost;
+                }
+                text_final.setSize(50);
+                text_final.draw(window);
+                view.setCenter(text_final.getPosition().x + text_final.getPosition().x / 2,
+                               text_final.getPosition().y + text_final.getPosition().y / 2);
+                text_respawn.draw(window);
+                window.setView(view);
+                window.display();
+            }
+        }
+    }
+    catch(const std::exception& err){
+        std::cout<<"\nERROR: Something went wrong :(\n"<<std::endl;
+        std::cout<<err.what()<<std::endl;
+
     }
     return 0;
 }
