@@ -4,7 +4,7 @@
 #include "Object.h"
 
 class Platform : public Object {
-private:
+protected:
     unsigned int durability;
 
     void print(std::ostream& os) const override;

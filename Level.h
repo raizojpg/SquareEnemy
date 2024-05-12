@@ -5,7 +5,7 @@
 #include <memory>
 #include "Player.h"
 #include "Enemy.h"
-#include "Platform.h"
+#include "MovingPlatform.h"
 
 enum PlayStates {playing,lost,won};
 
@@ -16,6 +16,7 @@ private:
     std::vector<std::shared_ptr<Object>> platforms;
     std::vector<std::shared_ptr<Object>> dynamicObjects;
     std::vector<std::shared_ptr<Enemy>> enemies;
+
 
     void init_instructions();
     void init_platforms();
@@ -31,6 +32,7 @@ public:
     bool checkCollisions(auto& objects1, auto& objects2, float resistance);
     void checkAllCollisions();
 
+    void renderPlatforms();
     void renderEnemies(PlayStates& play_state);
     void draw(sf::RenderWindow& window);
 

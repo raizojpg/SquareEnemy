@@ -135,6 +135,8 @@ add_executable(${PROJECT_NAME}
         Enemy.h
         Level.cpp
         Level.h
+        MovingPlatform.cpp
+        MovingPlatform.h
 )
 
 ###############################################################################

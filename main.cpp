@@ -15,6 +15,7 @@ void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, std::shar
     if(level == nullptr){
         throw GameError("\nGAME ERROR: Your game does not have a loaded level\n");
     }
+    level->renderPlatforms();
     level->renderEnemies(play_state);
     player.move();
     player.drag(window);

@@ -30,6 +30,13 @@ void Level::init_platforms() {
     platforms.push_back(ptr);
     ptr = std::make_shared<Platform>(Platform{{-500,1500},{20,5000},100});
     platforms.push_back(ptr);
+
+    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{1200, 500}, {20, 700}, 100, 1, 400, true});
+    platforms.push_back(ptr);
+    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{800, 700}, {600, 20}, 100, 1, 400, false});
+    platforms.push_back(ptr);
+
+
 }
 
 void Level::init_objects() {
@@ -127,6 +134,17 @@ void Level::checkAllCollisions() {
     checkCollisions(enemies,platforms,1.0);
     checkCollisions(enemies,dynamicObjects,0.5);
     checkCollisions(dynamicObjects,platforms,1.0);
+}
+
+void Level::renderPlatforms() {
+    for(auto& platform : platforms){
+        if(platform!= nullptr){
+            std::shared_ptr<MovingPlatform> m_platform = dynamic_pointer_cast<MovingPlatform>(platform);
+            if(m_platform!= nullptr){
+                m_platform->move();
+            }
+        }
+    }
 }
 
 void Level::renderEnemies(PlayStates &play_state) {
