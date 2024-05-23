@@ -17,6 +17,8 @@ public:
     //void setDurability(unsigned int durability_) { durability = durability_; }
     //unsigned int getDurability() const { return durability; }
 
+    virtual void action() = 0;
+
     ~Platform() override;
 };
 

@@ -9,26 +9,26 @@ void Level::init_instructions() {
 }
 
 void Level::init_platforms() {
-    std::shared_ptr<Object> ptr;
+    std::shared_ptr<Platform> ptr;
 
-    ptr = std::make_shared<Platform>(Platform{{100, 400}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{100, 400}, {200, 50}, 100});
     platforms.push_back(ptr);
-    ptr = std::make_shared<Platform>(Platform{{300, 400}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{300, 400}, {200, 50}, 100});
     platforms.push_back(ptr);
-    ptr = std::make_shared<Platform>(Platform{{500, 20}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{500, 20}, {200, 50}, 100});
     platforms.push_back(ptr);
-    ptr = std::make_shared<Platform>(Platform{{100, 150}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{100, 150}, {200, 50}, 100});
     platforms.push_back(ptr);
-    ptr = std::make_shared<Platform>(Platform{{200, 600}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{200, 600}, {200, 50}, 100});
     platforms.push_back(ptr);
 
-    ptr = std::make_shared<Platform>(Platform{{-500,-500},{5000,20},100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{-500,-500},{5000,20},100});
     platforms.push_back(ptr);
-    ptr = std::make_shared<Platform>(Platform{{1500,-500},{20,5000},100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{1500,-500},{20,5000},100});
     platforms.push_back(ptr);
-    ptr = std::make_shared<Platform>(Platform{{1500,1500},{5000,20},100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{1500,1500},{5000,20},100});
     platforms.push_back(ptr);
-    ptr = std::make_shared<Platform>(Platform{{-500,1500},{20,5000},100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{-500,1500},{20,5000},100});
     platforms.push_back(ptr);
 
     ptr = std::make_shared<MovingPlatform>(MovingPlatform{{1200, 500}, {20, 700}, 100, 1, 400, true});
@@ -36,6 +36,10 @@ void Level::init_platforms() {
     ptr = std::make_shared<MovingPlatform>(MovingPlatform{{800, 700}, {600, 20}, 100, 1, 400, false});
     platforms.push_back(ptr);
 
+    ptr = std::make_shared<RotatingPlatform>(RotatingPlatform{{-200,290},{150,150},100});
+    platforms.push_back(ptr);
+    ptr = std::make_shared<RotatingPlatform>(RotatingPlatform{{-200,530},{150,150},100});
+    platforms.push_back(ptr);
 
 }
 
@@ -139,10 +143,7 @@ void Level::checkAllCollisions() {
 void Level::renderPlatforms() {
     for(auto& platform : platforms){
         if(platform!= nullptr){
-            std::shared_ptr<MovingPlatform> m_platform = dynamic_pointer_cast<MovingPlatform>(platform);
-            if(m_platform!= nullptr){
-                m_platform->move();
-            }
+            platform->action();
         }
     }
 }

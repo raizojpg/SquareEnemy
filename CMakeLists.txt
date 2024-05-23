@@ -137,6 +137,10 @@ add_executable(${PROJECT_NAME}
         Level.h
         MovingPlatform.cpp
         MovingPlatform.h
+        RotatingPlatform.cpp
+        RotatingPlatform.h
+        StaticPlatform.cpp
+        StaticPlatform.h
 )
 
 ###############################################################################

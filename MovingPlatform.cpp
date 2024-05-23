@@ -4,7 +4,7 @@ MovingPlatform::MovingPlatform(sf::Vector2f position_, sf::Vector2f size_, unsig
                                int maxSteps_, bool horizontal_)
         : Platform{position_,size_,durability_}, speed{speed_}, steps{0}, maxSteps{maxSteps_}, horizontal{horizontal_}{}
 
-void MovingPlatform::move() {
+void MovingPlatform::action() {
     if(horizontal){
         if(steps / (maxSteps / 2) == 0){
             shape.move(+speed,0);

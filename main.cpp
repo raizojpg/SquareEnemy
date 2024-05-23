@@ -34,38 +34,21 @@ void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, std::shar
 }
 
 int main() {
+
+    sf::RenderWindow window;
+    /// NOTE: sync with env variable APP_WINDOW from .github/workflows/cmake.yml:31
+    window.create(sf::VideoMode({800, 700}), "Game", sf::Style::Default);
+
+    ///////////////////////////////////////////////////////////////////////////
+    /// NOTE: mandatory use one of vsync or FPS limit (not both)            ///
+    /// This is needed so we do not burn the GPU                            ///
+    window.setVerticalSyncEnabled(true);                            ///
+    /// window.setFramerateLimit(60);                                       ///
+    ///////////////////////////////////////////////////////////////////////////
+
+    sf::View view{sf::Vector2f(0, 0), sf::Vector2f(800, 700)};
+
     try {
-        sf::RenderWindow window;
-        /// NOTE: sync with env variable APP_WINDOW from .github/workflows/cmake.yml:31
-        window.create(sf::VideoMode({800, 700}), "Game", sf::Style::Default);
-
-        ///////////////////////////////////////////////////////////////////////////
-        /// NOTE: mandatory use one of vsync or FPS limit (not both)            ///
-        /// This is needed so we do not burn the GPU                            ///
-        window.setVerticalSyncEnabled(true);                            ///
-        /// window.setFramerateLimit(60);                                       ///
-        ///////////////////////////////////////////////////////////////////////////
-
-        sf::View view{sf::Vector2f(0, 0), sf::Vector2f(800, 700)};
-
-        try {
-            Gun gun = Gun{100, 100};
-            Enemy e = Enemy{{100, 400}, {-100, -100}, 100, -1, -100};
-            e.addWeapon(gun);
-        }
-        catch (const ObjectError &err) {
-            std::cout << err.what() << std::endl;
-        }
-        catch (const DynamicObjectError &err) {
-            std::cout << err.what() << std::endl;
-        }
-        catch (const EnemyError &err) {
-            std::cout << err.what() << std::endl;
-        }
-        catch (const WeaponError &err) {
-            std::cout << err.what() << std::endl;
-        }
-
         Text text_respawn{"Press R to respawn", {310, 500}};
         Text text_you_won{"You won!", {300, 300}};
         Text text_you_lost{"You lost :(", {300, 300}};
@@ -75,24 +58,8 @@ int main() {
         player.addWeapon(wpn);
 
         std::shared_ptr<Level> level;
-        try {
-            level = std::make_shared<Level>(Level{player});
-        }
-        catch (const ObjectError &err) {
-            std::cout << err.what() << std::endl;
-        }
-        catch (const DynamicObjectError &err) {
-            std::cout << err.what() << std::endl;
-        }
-        catch (const EnemyError &err) {
-            std::cout << err.what() << std::endl;
-        }
-        catch (const WeaponError &err) {
-            std::cout << err.what() << std::endl;
-        }
-        catch (const GameError &err) {
-            std::cout << err.what() << std::endl;
-        }
+
+        level = std::make_shared<Level>(Level{player});
 
         PlayStates play_state = playing;
 
@@ -123,14 +90,9 @@ int main() {
             }
 
             if (play_state == playing) {
-                try {
-                    gameplay(window, view, player, level, play_state);
-                }
-                catch (const GameError &err) {
-                    std::cout << err.what() << std::endl;
-                    break;
-                }
-            } else {
+                gameplay(window, view, player, level, play_state);
+            }
+            else {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
                     player.setHp(100);
                     player.setPosition({0, 0});
@@ -152,6 +114,20 @@ int main() {
                 window.display();
             }
         }
+    }catch (const ObjectError &err) {
+        std::cout << err.what() << std::endl;
+    }
+    catch (const DynamicObjectError &err) {
+        std::cout << err.what() << std::endl;
+    }
+    catch (const EnemyError &err) {
+        std::cout << err.what() << std::endl;
+    }
+    catch (const WeaponError &err) {
+        std::cout << err.what() << std::endl;
+    }
+    catch (const GameError &err) {
+        std::cout << err.what() << std::endl;
     }
     catch(const std::exception& err){
         std::cout<<"\nERROR: Something went wrong :(\n"<<std::endl;

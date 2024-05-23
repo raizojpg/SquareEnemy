@@ -11,7 +11,7 @@ class MovingPlatform : public Platform  {
 public:
     MovingPlatform(sf::Vector2f position_, sf::Vector2f size_, unsigned int durability_, float speed_ ,int maxSteps_, bool horizontal_);
 
-    void move();
+    void action() override;
 
 };
 

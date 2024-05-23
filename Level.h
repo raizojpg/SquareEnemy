@@ -5,7 +5,9 @@
 #include <memory>
 #include "Player.h"
 #include "Enemy.h"
+#include "StaticPlatform.h"
 #include "MovingPlatform.h"
+#include "RotatingPlatform.h"
 
 enum PlayStates {playing,lost,won};
 
@@ -13,7 +15,7 @@ class Level{
 private:
     Player& player;
     std::vector<std::shared_ptr<Text>> instructions;
-    std::vector<std::shared_ptr<Object>> platforms;
+    std::vector<std::shared_ptr<Platform>> platforms;
     std::vector<std::shared_ptr<Object>> dynamicObjects;
     std::vector<std::shared_ptr<Enemy>> enemies;
 
