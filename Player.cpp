@@ -1,6 +1,6 @@
 #include "Player.h"
 
-Player::Player(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_) :
+Player::Player(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_) :
         DynamicObject{position_, size_, hp_, speed_}, Controllable() {
     std::cout << "Player created " << std::endl;
     shape.setFillColor(sf::Color::Green);
@@ -37,18 +37,26 @@ void Player::drag(const sf::RenderWindow &window) {
 }
 
 void Player::addWeapon(Weapon &wpn_) {
-    wpn = new Weapon(wpn_);
+    wpn = wpn_.clone();
+    wpn->setPosition(position);
 }
 
 void Player::possibleAttack(DynamicObject &target) {
     if(wpn != nullptr){
         if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::E)){
-            wpn->attack(target);
+            wpn->possible_impact(target);
         }
     }
 }
 
+void Player::draw(sf::RenderWindow &window) {
+    window.draw(shape);
+    if(wpn != nullptr) {
+        wpn->draw(window);
+    }
+}
+
 Player::~Player() {
-    delete wpn;
     std::cout << "Player destroyed " << std::endl;
 }
+

@@ -127,8 +127,6 @@ add_executable(${PROJECT_NAME}
         Gun.h
         Controllable.cpp
         Controllable.h
-        Bullet.cpp
-        Bullet.h
         Player.cpp
         Player.h
         Enemy.cpp
@@ -141,6 +139,10 @@ add_executable(${PROJECT_NAME}
         RotatingPlatform.h
         StaticPlatform.cpp
         StaticPlatform.h
+        Arms.cpp
+        Arms.h
+        Sword.cpp
+        Sword.h
 )
 
 ###############################################################################

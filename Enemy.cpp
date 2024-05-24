@@ -3,7 +3,7 @@
 int Enemy::counter = 0;
 Text Enemy::ct_text{"Enemies remaining : ", {-50,-100}};
 
-Enemy::Enemy(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_, int maxSteps_) :
+Enemy::Enemy(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_, int maxSteps_) :
         DynamicObject{position_, size_, hp_, speed_}, Controllable(), steps{0}, maxSteps{maxSteps_} {
     if(maxSteps < 0){
         throw EnemyError("Your enemy must have a positive number of maxSteps in order to move");
@@ -53,22 +53,16 @@ void Enemy::move() {
     steps++;
     position.x = shape.getPosition().x;
     position.y = shape.getPosition().y;
-    if(wpn != nullptr){
-        wpn->render();
-    }
 }
 
 void Enemy::addWeapon(Weapon &wpn_) {
-    wpn = new Gun(wpn_);
+    wpn = wpn_.clone();
+    wpn->setPosition(position);
 }
 
-void Enemy::possibleAttack(DynamicObject &player) {
+void Enemy::possibleAttack(DynamicObject &obj) {
     if(wpn != nullptr){
-        Gun *enemy_wpn = dynamic_cast<Gun *>(wpn);
-        if (enemy_wpn != nullptr) {
-            enemy_wpn->shoot(position);
-            player.showHP(nullptr);
-        }
+        wpn->possible_impact(obj);
     }
 }
 
@@ -81,6 +75,5 @@ void Enemy::draw(sf::RenderWindow &window) {
 
 Enemy::~Enemy() {
     counter--;
-    delete wpn;
     std::cout << "Enemy destroyed " << std::endl;
 }

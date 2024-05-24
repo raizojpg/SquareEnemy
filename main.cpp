@@ -5,8 +5,7 @@
 //my classes (not all of them)
 #include "Error.h"
 #include "Text.h"
-#include "Weapon.h"
-#include "Gun.h"
+#include "Arms.h"
 #include "Player.h"
 #include "Enemy.h"
 #include "Level.h"
@@ -15,9 +14,7 @@ void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, std::shar
     if(level == nullptr){
         throw GameError("\nGAME ERROR: Your game does not have a loaded level\n");
     }
-    level->renderPlatforms();
-    level->renderEnemies(play_state);
-    player.move();
+    level->render(play_state);
     player.drag(window);
     view.setCenter(player.getPosition());
 
@@ -26,7 +23,6 @@ void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, std::shar
     if (Enemy::getCounter()==0) { play_state = won; }
 
     window.clear(sf::Color(32, 32, 32));
-    player.draw(window);
     level->draw(window);
     Enemy::updateCounter(window);
     window.setView(view);
@@ -54,7 +50,7 @@ int main() {
         Text text_you_lost{"You lost :(", {300, 300}};
         Text text_final;
         Player player{{100, 100}, {100, 100}, 100, 5};
-        Weapon wpn = Weapon{50, 100};
+        Arms wpn = Arms{50, 100};
         player.addWeapon(wpn);
 
         std::shared_ptr<Level> level;

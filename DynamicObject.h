@@ -7,22 +7,22 @@
 class DynamicObject : public Object {
 protected:
     Text hp_text;
-    unsigned int hp;
+    int hp;
     float speed;
 
     void print(std::ostream& os) const override;
 
 public:
     DynamicObject();
-    DynamicObject(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_);
+    DynamicObject(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_);
     DynamicObject(const DynamicObject& other);
     DynamicObject& operator= (const DynamicObject& other);
 
     void showHP(sf::RenderWindow* window);
 
-    unsigned int getHp() const;
-    void setHp(unsigned int hp_);
-    //float getSpeed() const {return speed;}
+    int getHp() const;
+    void setHp(int hp_);
+    float getSpeed() const;
     //void setSpeed(float speed_) {speed = speed_;}
 
     bool checkHP() const;

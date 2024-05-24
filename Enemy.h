@@ -4,6 +4,7 @@
 #include "DynamicObject.h"
 #include "Controllable.h"
 #include "Gun.h"
+#include "Sword.h"
 
 class Enemy : public DynamicObject, public Controllable{
 private:
@@ -12,7 +13,7 @@ private:
     int steps;
     int maxSteps;
 public:
-    Enemy(sf::Vector2f position_, sf::Vector2f size_, unsigned int hp_, float speed_, int maxSteps_);
+    Enemy(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_, int maxSteps_);
     Enemy(const Enemy& other);
     Enemy& operator= (const Enemy& other);
 
@@ -21,7 +22,7 @@ public:
 
     void move() override;
     void addWeapon(Weapon& wpn_) override;
-    void possibleAttack(DynamicObject& player) override;
+    void possibleAttack(DynamicObject& obj) override;
     void draw(sf::RenderWindow& window) override;
 
     ~Enemy() override;

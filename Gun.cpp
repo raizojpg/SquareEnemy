@@ -1,47 +1,40 @@
 #include "Gun.h"
 
 void Gun::print(std::ostream &os) const {
-    os << "Gun : attackDamage = " << attackDamage << " and durability = " << durability;
+    Weapon::print(os);
+    os << " bullet: " << bullet;
 }
 
-Gun::Gun() : Weapon(), bullet{nullptr}{
+Gun::Gun() : Weapon(), bullet{}, range{0}{
     std::cout << "Gun created NULL" << std::endl;
 }
 
-Gun::Gun(int attackDamage_, unsigned int durability_) :  Weapon{attackDamage_, durability_}, bullet{nullptr} {
+Gun::Gun(int attackDamage_, unsigned int durability_) :  Weapon{attackDamage_, durability_},
+    bullet{position,{20,10},0,5}, range{150} {
+    bullet.getShape().setFillColor(sf::Color::White);
     std::cout << "Gun created " << *this;
-}
-
-Gun::Gun(const Weapon &wpn_) :  Weapon{wpn_}, bullet{nullptr} {
-    std::cout<<"Gun copied "<< *this;
 }
 
 Weapon *Gun::clone() const { return new Gun(*this); }
 
-Bullet *Gun::getBullet() const { return bullet; }
-
-void Gun::shoot(const sf::Vector2f position) {
-    if(bullet == nullptr){
-        bullet = new Bullet(position);
-        bullet->addWeapon(*this);
+void Gun::possible_impact(DynamicObject &target) {
+    if(bullet.getCollisionBox().checkCollision(target.getCollisionBox(),1.0)){
+        attack(target);
+        bullet.setPosition(position);
     }
 }
 
 void Gun::draw(sf::RenderWindow &window) {
-    if(bullet != nullptr){
-        bullet->draw(window);
-    }
+    bullet.draw(window);
 }
 
-void Gun::render() {
-    if(bullet != nullptr){
-        bullet->move();
+void Gun::render(const DynamicObject& parent) {
+    bullet.getShape().move(-bullet.getSpeed(),0);
+    range--;
+    if(range == 0){
+        bullet.setPosition(parent.getPosition());
+        range = 150;
     }
-}
-
-void Gun::deallocate() {
-    delete bullet;
-    bullet = nullptr;
 }
 
 Gun::~Gun() {

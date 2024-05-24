@@ -19,23 +19,25 @@ private:
     std::vector<std::shared_ptr<Object>> dynamicObjects;
     std::vector<std::shared_ptr<Enemy>> enemies;
 
-
     void init_instructions();
     void init_platforms();
     void init_objects();
     void init_enemy();
 
-public:
-    explicit Level(Player& player_);
+    void renderPlayer();
+    void renderPlatforms();
+    void renderEnemies(PlayStates& play_state);
 
     bool checkCollisionsPlayerPlatforms();
     bool checkCollisionsPlayer(auto& objects);
     bool checkCollisions(auto& objects);
     bool checkCollisions(auto& objects1, auto& objects2, float resistance);
-    void checkAllCollisions();
 
-    void renderPlatforms();
-    void renderEnemies(PlayStates& play_state);
+public:
+    explicit Level(Player& player_);
+
+    void checkAllCollisions();
+    void render(PlayStates& play_state);
     void draw(sf::RenderWindow& window);
 
     ~Level() = default;

@@ -2,26 +2,26 @@
 #define OOP_GUN_H
 
 #include "Weapon.h"
-#include "Bullet.h"
 
 class Gun : public Weapon{
-    Bullet* bullet;
+    DynamicObject bullet;
+    int range;
 
     void print(std::ostream& os) const override;
 
 public:
     Gun();
     Gun(int attackDamage_, unsigned int durability_);
-    explicit Gun(const Weapon& wpn_);
+    Gun(const Gun& wpn_) = default;
+    Gun& operator=(const Gun& other) = default;
 
     [[nodiscard]] Weapon* clone() const override;
-    [[nodiscard]] Bullet* getBullet() const;
+    //DynamicObject& getBullet();
 
-    void shoot(sf::Vector2f position);
+    void possible_impact(DynamicObject& target) override;
     void draw(sf::RenderWindow& window) override;
-    void render() override;
+    void render(const DynamicObject& parent) override;
 
-    void deallocate() override;
     ~Gun() override;
 };
 
