@@ -1,7 +1,7 @@
 #include "Text.h"
 
 Text::Text() {
-    font.loadFromFile("../resources/KGBlankSpaceSolid.ttf");
+    font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
     text.setFont(font);
     text.setString("");
     text.setCharacterSize(22);
@@ -10,7 +10,7 @@ Text::Text() {
 }
 
 Text::Text(const std::string &str, const sf::Vector2f position) {
-    font.loadFromFile("../resources/KGBlankSpaceSolid.ttf");
+    font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
     text.setFont(font);
     text.setString(str);
     text.setCharacterSize(22);
@@ -19,7 +19,7 @@ Text::Text(const std::string &str, const sf::Vector2f position) {
 }
 
 Text::Text(const Text &other) {
-    font.loadFromFile("../resources/KGBlankSpaceSolid.ttf");
+    font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
     text.setFont(font);
     text.setString(other.text.getString());
     text.setCharacterSize(22);
@@ -28,7 +28,7 @@ Text::Text(const Text &other) {
 }
 
 Text &Text::operator=(const Text &other) {
-    font.loadFromFile("../resources/KGBlankSpaceSolid.ttf");
+    font.loadFromFile("resources/KGBlankSpaceSolid.ttf");
     text.setFont(font);
     text.setString(other.text.getString());
     text.setCharacterSize(22);
