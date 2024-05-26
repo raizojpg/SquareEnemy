@@ -6,43 +6,45 @@ void Level::init_instructions() {
     instructions.push_back(text_ptr);
     text_ptr = std::make_shared<Text>(Text{"Press E to attack (punch) ",{350,80}});
     instructions.push_back(text_ptr);
+    text_ptr = std::make_shared<Text>(Text{"140 years old kung fu master ",{-400,1250}});
+    instructions.push_back(text_ptr);
 }
 
 void Level::init_platforms() {
     std::shared_ptr<Platform> ptr;
 
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{100, 400}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{100, 400}, {200, 50}, 1000});
     platforms.push_back(ptr);
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{300, 400}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{300, 400}, {200, 50}, 1000});
     platforms.push_back(ptr);
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{500, 20}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{500, 20}, {200, 50}, 1000});
     platforms.push_back(ptr);
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{100, 150}, {200, 50}, 100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{100, 150}, {200, 50}, 1000});
     platforms.push_back(ptr);
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{200, 600}, {200, 50}, 100});
-    platforms.push_back(ptr);
-
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{-500,-500},{5000,20},100});
-    platforms.push_back(ptr);
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{1500,-500},{20,5000},100});
-    platforms.push_back(ptr);
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{1500,1500},{5000,20},100});
-    platforms.push_back(ptr);
-    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{-500,1500},{20,5000},100});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{200, 600}, {200, 50}, 1000});
     platforms.push_back(ptr);
 
-    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{1200, 500}, {20, 700}, 100, 1, 400, true});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{-500,-500},{5000,20},1000});
     platforms.push_back(ptr);
-    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{800, 700}, {600, 20}, 100, 1, 400, false});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{1500,-500},{20,5000},1000});
     platforms.push_back(ptr);
-    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{1200, 1000}, {20, 700}, 100, 1, 400, true});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{1500,1500},{5000,20},1000});
     platforms.push_back(ptr);
-    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{800, 1100}, {600, 20}, 100, 1, 400, false});
+    ptr = std::make_shared<StaticPlatform>(StaticPlatform{{-500,1500},{20,5000},1000});
     platforms.push_back(ptr);
 
-    ptr = std::make_shared<RotatingPlatform>(RotatingPlatform{{-200,290},{150,150},100});
+    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{1200, 500}, {20, 700}, 1000, 1, 400, true});
     platforms.push_back(ptr);
-    ptr = std::make_shared<RotatingPlatform>(RotatingPlatform{{-200,530},{150,150},100});
+    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{950, 700}, {800, 20}, 1000, 1, 400, false});
+    platforms.push_back(ptr);
+    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{1200, 1000}, {20, 700}, 1000, 1, 400, true});
+    platforms.push_back(ptr);
+    ptr = std::make_shared<MovingPlatform>(MovingPlatform{{950, 1000}, {800, 20}, 1000, 1, 400, false});
+    platforms.push_back(ptr);
+
+    ptr = std::make_shared<RotatingPlatform>(RotatingPlatform{{-200,290},{150,150},1000});
+    platforms.push_back(ptr);
+    ptr = std::make_shared<RotatingPlatform>(RotatingPlatform{{-200,530},{150,150},1000});
     platforms.push_back(ptr);
 
 }
@@ -79,14 +81,18 @@ void Level::init_enemy() {
     enemy_ptr = std::make_shared<Enemy>(e2);
     enemies.push_back(enemy_ptr);
 
-    Enemy e3 = Enemy{{900,900},{100,100},100,1,800};
+    Enemy e3 = Enemy{{900,800},{100,100},100,2,400};
     e3.addWeapon(swd);
     enemy_ptr = std::make_shared<Enemy>(e3);
     enemies.push_back(enemy_ptr);
 
-    Enemy e4 = Enemy{{500,1100},{100,100},100,1,800};
+    Enemy e4 = Enemy{{600,1000},{100,100},100,2,400};
     e4.addWeapon(swd);
     enemy_ptr = std::make_shared<Enemy>(e4);
+    enemies.push_back(enemy_ptr);
+
+    Enemy e5 = Enemy{{-400,1400},{100,100},200,1,0};
+    enemy_ptr = std::make_shared<Enemy>(e5);
     enemies.push_back(enemy_ptr);
 
 }
@@ -213,11 +219,12 @@ void Level::draw(sf::RenderWindow &window) {
         enemy->draw(window);
         enemy->showHP(&window);
     }
+    player.draw(window);
+    player.showHP(&window);
     for(auto& instruction : instructions){
         instruction->draw(window);
     }
-    player.draw(window);
-    player.showHP(&window);
+
 }
 
 

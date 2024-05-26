@@ -34,7 +34,7 @@ void DynamicObject::showHP(sf::RenderWindow *window) {
     if(window != nullptr) {
         hp_text.getText().setString(std::to_string(hp));
         hp_text.getText().setOrigin(this->getShape().getOrigin());
-        hp_text.getText().setPosition(this->position);
+        hp_text.getText().setPosition(this->shape.getPosition());
         hp_text.draw(*window);
     }
 }

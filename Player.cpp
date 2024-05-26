@@ -27,7 +27,7 @@ void Player::move() {
     position.y = shape.getPosition().y;
 }
 
-void Player::drag(const sf::RenderWindow &window) {
+void Player::drag(const sf::RenderWindow& window) {
     if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
         sf::Vector2i mousePosition = sf::Mouse::getPosition(window);
         shape.setPosition(float(mousePosition.x), float(mousePosition.y));

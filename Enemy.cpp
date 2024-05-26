@@ -34,25 +34,23 @@ void Enemy::updateCounter(sf::RenderWindow &window) {
 int Enemy::getCounter() { return counter;}
 
 void Enemy::move() {
-    if(steps / (maxSteps / 4) == 0){
-        shape.move(+speed,-speed/4);
-        if(steps==maxSteps-1){steps=(-1)*maxSteps;}
+    if(maxSteps!=0) {
+        if (steps / (maxSteps / 4) == 0) {
+            shape.move(+speed, -speed / 4);
+            if (steps == maxSteps - 1) { steps = (-1) * maxSteps; }
+        } else if (steps / (maxSteps / 4) == 1) {
+            shape.move(+speed, +speed / 4);
+        } else if (steps / (maxSteps / 4) == 2) {
+            shape.move(-speed, +speed / 4);
+        } else if (steps / (maxSteps / 4) == 3) {
+            shape.move(-speed, -speed / 4);
+        } else {
+            steps = -1;
+        }
+        steps++;
+        position.x = shape.getPosition().x;
+        position.y = shape.getPosition().y;
     }
-    else if(steps / (maxSteps / 4) == 1){
-        shape.move(+speed,+speed/4);
-    }
-    else if(steps / (maxSteps / 4) == 2){
-        shape.move(-speed,+speed/4);
-    }
-    else if(steps / (maxSteps / 4) == 3){
-        shape.move(-speed,-speed/4);
-    }
-    else{
-        steps = -1;
-    }
-    steps++;
-    position.x = shape.getPosition().x;
-    position.y = shape.getPosition().y;
 }
 
 void Enemy::addWeapon(Weapon &wpn_) {
