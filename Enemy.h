@@ -5,6 +5,7 @@
 #include "Controllable.h"
 #include "Gun.h"
 #include "Sword.h"
+#include "Spear.h"
 
 class Enemy : public DynamicObject, public Controllable{
 private:

@@ -65,6 +65,7 @@ void Level::init_enemy() {
     std::shared_ptr<Enemy> enemy_ptr;
     Sword swd = Sword{25,100};
     Gun gun = Gun{100,100};
+    Spear spr = Spear{100,100};
 
     enemy_ptr = std::make_shared<Enemy>(Enemy{{500,400},{120,120},100,1,400});
     enemies.push_back(enemy_ptr);
@@ -91,7 +92,8 @@ void Level::init_enemy() {
     enemy_ptr = std::make_shared<Enemy>(e4);
     enemies.push_back(enemy_ptr);
 
-    Enemy e5 = Enemy{{-400,1400},{100,100},200,1,0};
+    Enemy e5 = Enemy{{-450,1450},{100,100},200,1,0};
+    e5.addWeapon(spr);
     enemy_ptr = std::make_shared<Enemy>(e5);
     enemies.push_back(enemy_ptr);
 

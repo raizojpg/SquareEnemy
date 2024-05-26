@@ -143,6 +143,8 @@ add_executable(${PROJECT_NAME}
         Arms.h
         Sword.cpp
         Sword.h
+        Spear.cpp
+        Spear.h
 )
 
 ###############################################################################
