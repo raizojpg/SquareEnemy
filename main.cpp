@@ -1,6 +1,5 @@
 #include <iostream>
 #include <vector>
-#include <memory>
 #include <SFML/Graphics.hpp>
 //my classes (not all of them)
 #include "Error.h"
@@ -9,6 +8,34 @@
 #include "Player.h"
 #include "Enemy.h"
 #include "LevelBuilder.h"
+#include "Decorator.h"
+
+void start_window(sf::RenderWindow& window, PlayStates& play_state){
+    window.clear(sf::Color(32, 32, 32));
+
+    Text text_start{"Press Click to START", {280, 100}};
+    text_start.draw(window);
+
+    Decorator<sf::RectangleShape,sf::CircleShape> square1{{100,100},{100,100},50};
+    Decorator<sf::RectangleShape,sf::CircleShape> square2{{100,600},{100,100},50};
+    Decorator<sf::RectangleShape,sf::CircleShape> square3{{700,600},{100,100},50};
+    Decorator<sf::RectangleShape,sf::CircleShape> square4{{700,100},{100,100},50};
+    square1.draw(window);
+    square2.draw(window);
+    square3.draw(window);
+    square4.draw(window);
+    Decorator<sf::CircleShape,sf::CircleShape> triangle{{300,300},150,50};
+    triangle.draw(window);
+
+    window.display();
+    while(true){
+        if (sf::Mouse::isButtonPressed(sf::Mouse::Left)) {
+            play_state = playing;
+            break;
+        }
+
+    }
+}
 
 void gameplay(sf::RenderWindow& window,sf::View& view, Player* player, Level* level, PlayStates& play_state){
     if(level == nullptr){
@@ -58,7 +85,7 @@ int main() {
         //*level = lvlBuilder.add_player(player).build_instructions().build_platforms().build_objects().build_enemy().build();
         Level* level = lvlBuilder.add_player(player).build_instructions().build_platforms().build_objects().build_enemy().build();
 
-        PlayStates play_state = playing;
+        PlayStates play_state = start;
 
         while (window.isOpen()) {
             bool shouldExit = false;
@@ -85,8 +112,10 @@ int main() {
                 window.close();
                 break;
             }
-
-            if (play_state == playing) {
+            if(play_state == start){
+                start_window(window,play_state);
+            }
+            else if (play_state == playing) {
                 gameplay(window, view, player, level, play_state);
             }
             else {

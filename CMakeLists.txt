@@ -147,6 +147,7 @@ add_executable(${PROJECT_NAME}
         Spear.h
         LevelBuilder.cpp
         LevelBuilder.h
+        Decorator.h
 )
 
 ###############################################################################

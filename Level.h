@@ -9,7 +9,7 @@
 #include "MovingPlatform.h"
 #include "RotatingPlatform.h"
 
-enum PlayStates {playing,lost,won};
+enum PlayStates {start,playing,lost,won};
 
 class Level{
 private:
