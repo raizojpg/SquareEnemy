@@ -13,16 +13,11 @@ enum PlayStates {playing,lost,won};
 
 class Level{
 private:
-    Player& player;
+    Player* player;
     std::vector<std::shared_ptr<Text>> instructions;
     std::vector<std::shared_ptr<Platform>> platforms;
     std::vector<std::shared_ptr<Object>> dynamicObjects;
     std::vector<std::shared_ptr<Enemy>> enemies;
-
-    void init_instructions();
-    void init_platforms();
-    void init_objects();
-    void init_enemy();
 
     void renderPlayer();
     void renderPlatforms();
@@ -34,11 +29,18 @@ private:
     bool checkCollisions(auto& objects1, auto& objects2, float resistance);
 
 public:
-    explicit Level(Player& player_);
+    Level(): player{nullptr} {}
 
     void checkAllCollisions();
     void render(PlayStates& play_state);
     void draw(sf::RenderWindow& window);
+
+    void setPlayer(Player *player);
+    void setInstructions(const std::vector<std::shared_ptr<Text>> &instructions);
+    void setPlatforms(const std::vector<std::shared_ptr<Platform>> &platforms);
+    void setDynamicObjects(const std::vector<std::shared_ptr<Object>> &dynamicObjects);
+    void setEnemies(const std::vector<std::shared_ptr<Enemy>> &enemies);
+
 
     ~Level() = default;
 };

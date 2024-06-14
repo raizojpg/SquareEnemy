@@ -145,6 +145,8 @@ add_executable(${PROJECT_NAME}
         Sword.h
         Spear.cpp
         Spear.h
+        LevelBuilder.cpp
+        LevelBuilder.h
 )
 
 ###############################################################################

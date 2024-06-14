@@ -1,5 +1,7 @@
 #include "Player.h"
 
+Player* Player::instance = nullptr;
+
 Player::Player(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_) :
         DynamicObject{position_, size_, hp_, speed_}, Controllable() {
     std::cout << "Player created " << std::endl;
@@ -53,6 +55,21 @@ void Player::draw(sf::RenderWindow &window) {
     window.draw(shape);
     if(wpn != nullptr) {
         wpn->draw(window);
+    }
+}
+
+Player *Player::getInstance(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_) {
+    if(instance == nullptr){
+        instance = new Player(position_,size_,hp_,speed_);
+        return instance;
+    }
+    return nullptr;
+}
+
+void Player::removeInstance() {
+    if(instance!= nullptr) {
+        delete instance;
+        instance = nullptr;
     }
 }
 

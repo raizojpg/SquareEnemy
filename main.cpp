@@ -8,15 +8,15 @@
 #include "Arms.h"
 #include "Player.h"
 #include "Enemy.h"
-#include "Level.h"
+#include "LevelBuilder.h"
 
-void gameplay(sf::RenderWindow& window,sf::View& view, Player& player, std::shared_ptr<Level>& level, PlayStates& play_state){
+void gameplay(sf::RenderWindow& window,sf::View& view, Player* player, Level* level, PlayStates& play_state){
     if(level == nullptr){
         throw GameError("\nGAME ERROR: Your game does not have a loaded level\n");
     }
     level->render(play_state);
-    player.drag(window);
-    view.setCenter(player.getPosition());
+    player->drag(window);
+    view.setCenter(player->getPosition());
 
     level->checkAllCollisions();
 
@@ -49,13 +49,14 @@ int main() {
         Text text_you_won{"You won!", {300, 300}};
         Text text_you_lost{"You lost :(", {300, 300}};
         Text text_final;
-        Player player{{100, 100}, {100, 100}, 100, 5};
+        Player* player = Player::getInstance({100, 100}, {100, 100}, 100, 5);
         Arms wpn = Arms{50, 100};
-        player.addWeapon(wpn);
+        player->addWeapon(wpn);
 
-        std::shared_ptr<Level> level;
-
-        level = std::make_shared<Level>(Level{player});
+        LevelBuilder lvlBuilder;
+        //std::shared_ptr<Level> level = std::make_shared<Level>(Level());
+        //*level = lvlBuilder.add_player(player).build_instructions().build_platforms().build_objects().build_enemy().build();
+        Level* level = lvlBuilder.add_player(player).build_instructions().build_platforms().build_objects().build_enemy().build();
 
         PlayStates play_state = playing;
 
@@ -90,10 +91,11 @@ int main() {
             }
             else {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
-                    player.setHp(100);
-                    player.setPosition({0, 0});
+                    Player::removeInstance();
+                    player = Player::getInstance({100, 100}, {100, 100}, 100, 5);
+                    player->addWeapon(wpn);
+                    level = lvlBuilder.add_player(player).build_instructions().build_platforms().build_objects().build_enemy().build();
                     play_state = playing;
-                    level = std::make_shared<Level>(Level{player});
                 }
                 window.clear(sf::Color(32, 32, 32));
                 if (play_state == won) {
@@ -130,5 +132,6 @@ int main() {
         std::cout<<err.what()<<std::endl;
 
     }
+    Player::removeInstance();
     return 0;
 }
