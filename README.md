@@ -1,6 +1,6 @@
 # Square Enemy
 
-Tocmai ce te-ai infiltrat în lumea pătratelor (nu chiar, avem și dreptunghiuri). Pentru a evada ești nevoit să învingi toate pătratele inamice. Aceștia sunt niște adversari neobișnuiți, cu mișcari paralelogramice, specializați în mânuirea celor mai periculoase arme, maieștrii ai tainelor artelor marțiale, pregătiți să folosească cu iscusință atât săbii, cât și pistoale. Trebuie să iți dovedești agilitatea, coordonarea, dar mai ales curajul. Totuși nu te îngrijora, chiar daca ai fost transformat într-un pătrat, ți-au fost oferite și ție două arme foarte importante: propriile mâini.     
+Tocmai ce te-ai infiltrat în lumea pătratelor (nu chiar, avem și dreptunghiuri). Pentru a evada ești nevoit să învingi toate pătratele inamice. Aceștia sunt niște adversari neobișnuiți, cu mișcări paralelogramice, specializați în mânuirea celor mai periculoase arme, maeștrii ai tainelor artelor marțiale, pregătiți să folosească cu iscusință atât săbii, cât și pistoale. Trebuie să iți dovedești agilitatea, coordonarea, dar mai ales curajul. Totuși nu te îngrijora, chiar dacă ai fost transformat într-un pătrat, ți-au fost oferite și ție două arme foarte importante: propriile mâini.     
 
 ### Important!
 Aveți voie cu cod generat de modele de limbaj la care nu ați contribuit semnificativ doar în folder-ul `generated`.
