@@ -1,6 +1,6 @@
 #ifndef OOP_ENEMY_H
 #define OOP_ENEMY_H
-
+#include <string>
 #include "DynamicObject.h"
 #include "Controllable.h"
 #include "Gun.h"
