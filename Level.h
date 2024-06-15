@@ -35,7 +35,6 @@ private:
     void setEnemies(const std::vector<std::shared_ptr<Enemy>> &enemies);
 
     [[nodiscard]] Player *getPlayer() const;
-    [[nodiscard]] const std::vector<std::shared_ptr<Text>> &getInstructions() const;
     [[nodiscard]] const std::vector<std::shared_ptr<Platform>> &getPlatforms() const;
     [[nodiscard]] const std::vector<std::shared_ptr<Object>> &getDynamicObjects() const;
     [[nodiscard]] const std::vector<std::shared_ptr<Enemy>> &getEnemies() const;
