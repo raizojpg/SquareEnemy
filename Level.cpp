@@ -148,10 +148,6 @@ Player *Level::getPlayer() const {
     return player;
 }
 
-const std::vector<std::shared_ptr<Text>> &Level::getInstructions() const {
-    return instructions;
-}
-
 const std::vector<std::shared_ptr<Platform>> &Level::getPlatforms() const {
     return platforms;
 }

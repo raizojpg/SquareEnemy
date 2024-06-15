@@ -120,7 +120,6 @@ int main() {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
                     player.setHp(100);
                     player.setPosition({100,100});
-                    player.addWeapon(wpn);
                     level = lvlBuilder.add_player(&player).build_instructions().build_platforms(1000).build_objects(100).build_enemy(100).build();
                     play_state = playing;
                 }
