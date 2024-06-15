@@ -13,6 +13,7 @@ public:
 
     static Player& getInstance(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_);
 
+    void reset();
     void move() override;
     void drag(const sf::RenderWindow& window);
     void addWeapon(Weapon& wpn_) override;

@@ -22,7 +22,7 @@ public:
     LevelBuilder& build_platforms(unsigned int durability);
     LevelBuilder& build_objects(int hp);
     LevelBuilder& build_enemy(int hp);
-    Level* build();
+    Level build();
 
 };
 

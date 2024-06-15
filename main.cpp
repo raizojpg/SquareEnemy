@@ -80,8 +80,11 @@ int main() {
         Arms wpn = Arms{50, 100};
         player.addWeapon(wpn);
 
+        int enemy_hp = 100;
+        int object_hp = 100;
+        unsigned int platform_durability = 1000;
         LevelBuilder lvlBuilder;
-        Level* level = lvlBuilder.add_player(&player).build_instructions().build_platforms(1000).build_objects(100).build_enemy(100).build();
+        Level level = lvlBuilder.add_player(&player).build_instructions().build_platforms(platform_durability).build_objects(object_hp).build_enemy(enemy_hp).build();
 
         PlayStates play_state = start;
 
@@ -114,13 +117,16 @@ int main() {
                 start_window(window,play_state);
             }
             else if (play_state == playing) {
-                gameplay(window, view, &player, level, play_state);
+                gameplay(window, view, &player, &level, play_state);
             }
             else {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
-                    player.setHp(100);
-                    player.setPosition({100,100});
-                    level = lvlBuilder.add_player(&player).build_instructions().build_platforms(1000).build_objects(100).build_enemy(100).build();
+                    player.reset();
+                    if(play_state == won) {
+                        enemy_hp*=2;
+                        object_hp/=2;
+                    }
+                    level = lvlBuilder.build_platforms(platform_durability).build_objects(object_hp).build_enemy(enemy_hp).build();
                     play_state = playing;
                 }
                 window.clear(sf::Color(32, 32, 32));
@@ -148,6 +154,9 @@ int main() {
         std::cout << err.what() << std::endl;
     }
     catch (const WeaponError &err) {
+        std::cout << err.what() << std::endl;
+    }
+    catch (const LevelError &err) {
         std::cout << err.what() << std::endl;
     }
     catch (const GameError &err) {

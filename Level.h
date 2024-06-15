@@ -41,6 +41,7 @@ private:
 
 public:
     Level(): player{nullptr} {}
+    Level(Level& other);
 
     void checkAllCollisions();
     void render(PlayStates& play_state);

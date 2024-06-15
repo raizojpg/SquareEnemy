@@ -137,20 +137,12 @@ LevelBuilder &LevelBuilder::build_enemy(int hp) {
     return *this;
 }
 
-Level* LevelBuilder::build() {
-    try{
-        checkPlayer(level.getPlayer());
-        checkCollection(level.getPlatforms(),"Platform");
-        checkCollection(level.getDynamicObjects(),"Object");
-        checkCollection(level.getEnemies(),"Enemy");
-        return &level;
-    }
-    catch(LevelError& err){
-        std::cout<<err.what();
-        return nullptr;
-    }
-
-
+Level LevelBuilder::build() {
+    checkPlayer(level.getPlayer());
+    checkCollection(level.getPlatforms(),"Platform");
+    checkCollection(level.getDynamicObjects(),"Object");
+    checkCollection(level.getEnemies(),"Enemy");
+    return level;
 }
 
 void LevelBuilder::checkPlayer(const Player *player) {
@@ -165,3 +157,4 @@ void LevelBuilder::checkCollection(const auto &collection, const std::string &na
         throw LevelError(msg);
     }
 }
+

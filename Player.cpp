@@ -6,6 +6,11 @@ Player::Player(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_
     shape.setFillColor(sf::Color::Green);
 }
 
+void Player::reset() {
+    this->setPosition({100,100});
+    this->setHp(100);
+}
+
 void Player::move() {
     float relative_speed = speed;
     if(sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LShift)) {
@@ -64,4 +69,5 @@ Player &Player::getInstance(sf::Vector2f position_, sf::Vector2f size_, int hp_,
 Player::~Player() {
     std::cout << "Player destroyed " << std::endl;
 }
+
 
