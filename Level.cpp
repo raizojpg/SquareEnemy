@@ -189,7 +189,13 @@ void Level::copyObjects(const auto &other) {
     dynamicObjects.clear();
     std::shared_ptr<Object> ptr;
     for(auto& obj: other){
-        ptr = std::make_shared<Object>(*obj);
+        std::shared_ptr<DynamicObject> d_obj = std::dynamic_pointer_cast<DynamicObject>(obj);
+        if(d_obj){
+            ptr = std::make_shared<DynamicObject>(*d_obj);
+        }
+        else{
+            ptr = std::make_shared<Object>(*obj);
+        }
         dynamicObjects.push_back(ptr);
     }
 }
