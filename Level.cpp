@@ -160,10 +160,21 @@ const std::vector<std::shared_ptr<Enemy>> &Level::getEnemies() const {
     return enemies;
 }
 
-Level::Level(Level &other) : player{other.player}, instructions{other.instructions}{
+Level::Level(Level &other){
+    player = other.player;
+    instructions = other.instructions;
     platforms = std::move(other.platforms);
     dynamicObjects = std::move(other.dynamicObjects);
     enemies = std::move(other.enemies);
+}
+
+Level &Level::operator=(Level other) {
+    player = other.player;
+    instructions = other.instructions;
+    platforms = std::move(other.platforms);
+    dynamicObjects = std::move(other.dynamicObjects);
+    enemies = std::move(other.enemies);
+    return *this;
 }
 
 
