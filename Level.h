@@ -39,8 +39,8 @@ private:
     [[nodiscard]] const std::vector<std::shared_ptr<Object>> &getDynamicObjects() const;
     [[nodiscard]] const std::vector<std::shared_ptr<Enemy>> &getEnemies() const;
 
-    void copyEnemies(auto& other);
-    void copyObjects(auto& other);
+    void copyEnemies(const auto& other);
+    void copyObjects(const auto& other);
 
 public:
     Level(): player{nullptr} {}

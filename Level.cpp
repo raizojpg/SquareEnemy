@@ -176,7 +176,7 @@ Level &Level::operator=(const Level& other) {
     return *this;
 }
 
-void Level::copyEnemies(auto &other) {
+void Level::copyEnemies(const auto &other) {
     enemies.clear();
     std::shared_ptr<Enemy> ptr;
     for(auto& obj: other){
@@ -185,7 +185,7 @@ void Level::copyEnemies(auto &other) {
     }
 }
 
-void Level::copyObjects(auto &other) {
+void Level::copyObjects(const auto &other) {
     dynamicObjects.clear();
     std::shared_ptr<Object> ptr;
     for(auto& obj: other){
