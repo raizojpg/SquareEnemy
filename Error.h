@@ -28,4 +28,9 @@ public:
     explicit WeaponError(const std::string& msg);
 };
 
+class LevelError : public GameError {
+public:
+    explicit LevelError(const std::string& msg);
+};
+
 #endif //OOP_ERROR_H

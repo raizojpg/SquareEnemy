@@ -6,14 +6,12 @@
 
 class Player : public DynamicObject, public Controllable{
 private:
-    static Player* instance;
     Player(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_);
 public:
     Player(const Player& player) = delete;
     Player& operator= (const Player& other) = delete;
 
-    static Player* getInstance(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_);
-    static void removeInstance();
+    static Player& getInstance(sf::Vector2f position_, sf::Vector2f size_, int hp_, float speed_);
 
     void move() override;
     void drag(const sf::RenderWindow& window);

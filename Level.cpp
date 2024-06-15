@@ -144,4 +144,24 @@ void Level::setEnemies(const std::vector<std::shared_ptr<Enemy>> &enemies_) {
     enemies = enemies_;
 }
 
+Player *Level::getPlayer() const {
+    return player;
+}
+
+const std::vector<std::shared_ptr<Text>> &Level::getInstructions() const {
+    return instructions;
+}
+
+const std::vector<std::shared_ptr<Platform>> &Level::getPlatforms() const {
+    return platforms;
+}
+
+const std::vector<std::shared_ptr<Object>> &Level::getDynamicObjects() const {
+    return dynamicObjects;
+}
+
+const std::vector<std::shared_ptr<Enemy>> &Level::getEnemies() const {
+    return enemies;
+}
+
 

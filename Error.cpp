@@ -11,3 +11,6 @@ EnemyError::EnemyError(const std::string &msg) :
 
 WeaponError::WeaponError(const std::string &msg) :
         GameError("WEAPON ERROR: " + msg) {}
+
+LevelError::LevelError(const std::string &msg) :
+        GameError("LEVEL ERROR: " + msg) {}

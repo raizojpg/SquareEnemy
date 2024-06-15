@@ -76,14 +76,12 @@ int main() {
         Text text_you_won{"You won!", {300, 300}};
         Text text_you_lost{"You lost :(", {300, 300}};
         Text text_final;
-        Player* player = Player::getInstance({100, 100}, {100, 100}, 100, 5);
+        Player& player = Player::getInstance({100, 100}, {100, 100}, 100, 5);
         Arms wpn = Arms{50, 100};
-        player->addWeapon(wpn);
+        player.addWeapon(wpn);
 
         LevelBuilder lvlBuilder;
-        //std::shared_ptr<Level> level = std::make_shared<Level>(Level());
-        //*level = lvlBuilder.add_player(player).build_instructions().build_platforms().build_objects().build_enemy().build();
-        Level* level = lvlBuilder.add_player(player).build_instructions().build_platforms().build_objects().build_enemy().build();
+        Level* level = lvlBuilder.add_player(&player).build_instructions().build_platforms(1000).build_objects(100).build_enemy(100).build();
 
         PlayStates play_state = start;
 
@@ -116,14 +114,14 @@ int main() {
                 start_window(window,play_state);
             }
             else if (play_state == playing) {
-                gameplay(window, view, player, level, play_state);
+                gameplay(window, view, &player, level, play_state);
             }
             else {
                 if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::R)) {
-                    Player::removeInstance();
-                    player = Player::getInstance({100, 100}, {100, 100}, 100, 5);
-                    player->addWeapon(wpn);
-                    level = lvlBuilder.add_player(player).build_instructions().build_platforms().build_objects().build_enemy().build();
+                    player.setHp(100);
+                    player.setPosition({100,100});
+                    player.addWeapon(wpn);
+                    level = lvlBuilder.add_player(&player).build_instructions().build_platforms(1000).build_objects(100).build_enemy(100).build();
                     play_state = playing;
                 }
                 window.clear(sf::Color(32, 32, 32));
@@ -161,6 +159,5 @@ int main() {
         std::cout<<err.what()<<std::endl;
 
     }
-    Player::removeInstance();
     return 0;
 }
