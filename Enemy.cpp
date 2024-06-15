@@ -27,7 +27,7 @@ Enemy &Enemy::operator=(const Enemy &other) {
 }
 
 void Enemy::updateCounter(sf::RenderWindow &window) {
-    ct_text.getText().setString("Enemies remaining : " + std::to_string(counter));
+    ct_text.getText().setString("Enemies remaining : " + std::to_string(counter-7));
     ct_text.draw(window);
 }
 

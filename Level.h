@@ -39,10 +39,13 @@ private:
     [[nodiscard]] const std::vector<std::shared_ptr<Object>> &getDynamicObjects() const;
     [[nodiscard]] const std::vector<std::shared_ptr<Enemy>> &getEnemies() const;
 
+    void copyEnemies(auto& other);
+    void copyObjects(auto& other);
+
 public:
     Level(): player{nullptr} {}
-    Level(Level& other);
-    Level& operator=(Level other);
+    Level(const Level& other);
+    Level& operator=(const Level& other);
 
     void checkAllCollisions();
     void render(PlayStates& play_state);
@@ -53,5 +56,7 @@ public:
     ~Level() = default;
 
 };
+
+
 
 #endif //OOP_LEVEL_H

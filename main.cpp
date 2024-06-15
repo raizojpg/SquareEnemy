@@ -47,7 +47,7 @@ void gameplay(sf::RenderWindow& window,sf::View& view, Player* player, Level* le
 
     level->checkAllCollisions();
 
-    if (Enemy::getCounter()==0) { play_state = won; }
+    if (Enemy::getCounter()==7) { play_state = won; }
 
     window.clear(sf::Color(32, 32, 32));
     level->draw(window);
@@ -126,7 +126,7 @@ int main() {
                         enemy_hp*=2;
                         object_hp/=2;
                     }
-                    level = lvlBuilder.build_platforms(platform_durability).build_objects(object_hp).build_enemy(enemy_hp).build();
+                    level = lvlBuilder.build_objects(object_hp).build_enemy(enemy_hp).build();
                     play_state = playing;
                 }
                 window.clear(sf::Color(32, 32, 32));

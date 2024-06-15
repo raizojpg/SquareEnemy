@@ -90,7 +90,7 @@ std::vector<std::shared_ptr<Enemy>> LevelBuilder::init_enemy(int hp) {
     enemy_ptr = std::make_shared<Enemy>(e2);
     enemies.push_back(enemy_ptr);
 
-    Enemy e3 = Enemy{{900,800},{100,100},hp,2,400};
+    Enemy e3 = Enemy{{900,900},{100,100},hp,2,400};
     e3.addWeapon(swd);
     enemy_ptr = std::make_shared<Enemy>(e3);
     enemies.push_back(enemy_ptr);

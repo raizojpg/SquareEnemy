@@ -160,21 +160,40 @@ const std::vector<std::shared_ptr<Enemy>> &Level::getEnemies() const {
     return enemies;
 }
 
-Level::Level(Level &other){
-    player = other.player;
-    instructions = other.instructions;
-    platforms = std::move(other.platforms);
-    dynamicObjects = std::move(other.dynamicObjects);
-    enemies = std::move(other.enemies);
+Level::Level(const Level &other): player{other.player}, instructions{other.instructions}, platforms{other.platforms}{
+    copyEnemies(other.enemies);
+    copyObjects(other.dynamicObjects);
 }
 
-Level &Level::operator=(Level other) {
-    player = other.player;
-    instructions = other.instructions;
-    platforms = std::move(other.platforms);
-    dynamicObjects = std::move(other.dynamicObjects);
-    enemies = std::move(other.enemies);
+Level &Level::operator=(const Level& other) {
+    if(this != &other) {
+        player = other.player;
+        instructions = other.instructions;
+        platforms = other.platforms;
+        copyEnemies(other.enemies);
+        copyObjects(other.dynamicObjects);
+    }
     return *this;
 }
+
+void Level::copyEnemies(auto &other) {
+    enemies.clear();
+    std::shared_ptr<Enemy> ptr;
+    for(auto& obj: other){
+        ptr = std::make_shared<Enemy>(*obj);
+        enemies.push_back(ptr);
+    }
+}
+
+void Level::copyObjects(auto &other) {
+    dynamicObjects.clear();
+    std::shared_ptr<Object> ptr;
+    for(auto& obj: other){
+        ptr = std::make_shared<Object>(*obj);
+        dynamicObjects.push_back(ptr);
+    }
+}
+
+
 
 
